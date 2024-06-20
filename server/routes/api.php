@@ -24,9 +24,6 @@ Route::middleware(['check.api.token'])->group(function () {
         Route::get('/user', function (Request $request) {
             return $request->user();
         });
-        Route::get('/Hello', function (Request $request) {
-            return response()->json("hello");
-        });
         Route::controller(teacher::class)->group(function () {
             Route::post('/CreateTeacher', 'CreateTeacher');
             Route::get('/GetTeacher','GetTeacher');
@@ -41,7 +38,6 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::get('/GetClasses','GetClasses');
             Route::post('/DeleteClass','Delete');
             Route::get('/GetClassData','GetClassData');
-            
         });
         Route::controller(student::class)->group(function (){
             Route::post('/CreateStudent','CreateStudent');
@@ -50,6 +46,7 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::post('/DeleteStudent','Delete');
             Route::post('/UpdateStudent','UpdateStudent');
             Route::get('/GetStudentData','GetStudentData');
+            Route::post('/studentattendance','studentattendance');
         });
     });
 
@@ -62,12 +59,9 @@ Route::middleware(['check.api.token'])->group(function () {
         Route::post('/register', 'register');
         Route::post('/forgotPassword', 'forgotPassword');
     });
-
-
-
     
-    Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify.email');
 
+    Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify.email');
 });
 
 
