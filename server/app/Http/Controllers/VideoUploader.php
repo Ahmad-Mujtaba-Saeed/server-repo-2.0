@@ -36,7 +36,7 @@ class VideoUploader extends Controller
 
         $user = $request->user();
 
-        PlaylistVideo::create([
+        $playlistVideo = PlaylistVideo::create([
             'UsersID' => $user->id,
             'PlaylistTitle' => $request->input('PlaylistTitle'),
             'PlaylistDescription' => $request->input('PlaylistDescription'),
@@ -44,6 +44,18 @@ class VideoUploader extends Controller
             'playlistCategory' => $request->input('playlistCategory') ?? null,
             'Date' => $date
         ]);
+        if($playlistVideo){
+            $response = [
+                'success' => true,
+                'message' => "Successfully created new playlist"
+            ];
+        }else{
+            $response = [
+                'success' => false,
+                'message' => "Failed to created playlist"
+            ];
+        }
+        return Response()->json($response);
     }
 
     /**
@@ -56,10 +68,8 @@ class VideoUploader extends Controller
     {
         $request->validate([
             'video' => 'required|file|max:2097152', // 2 GB in kilobytes (1024 * 1024 * 2)
-            'VideoCategory' => 'required|string|max:255',
             'VideoTitle' => 'required|string|max:255',
             'VideoDescription' => 'nullable|string',
-            'VideoRank' => 'nullable|integer', // Ensure VideoRank is an integer
             'VideoPlaylistID' => 'nullable|integer',
         ]);
 
@@ -75,7 +85,7 @@ class VideoUploader extends Controller
                         $videoData = [
                             'UsersID' => $request->user()->id,
                             'VideoName' => $path,
-                            'VideoCategory' => $request->input('VideoCategory'),
+                            
                             'VideoTitle' => $request->input('VideoTitle'),
                             'VideoDescription' => $request->input('VideoDescription') ?? '',
                             'Date' => $date, // Set Date
@@ -83,19 +93,12 @@ class VideoUploader extends Controller
                             'updated_at' => now(),
                         ];
             
-                        // Only include these fields if they are provided and valid
-                        if ($request->filled('VideoRank')) {
-                            $videoData['VideoRank'] = $request->input('VideoRank');
-                        } else {
-                            $videoData['VideoRank'] = null;
-                        }
-            
                         if ($request->filled('VideoPlaylistID')) {
                             $videoData['VideoPlaylistID'] = $request->input('VideoPlaylistID');
                         } else {
                             $videoData['VideoPlaylistID'] = null;
                         }
-                        
+
                         $videoupload = videoupload::create($videoData);
             }
 
@@ -113,7 +116,7 @@ class VideoUploader extends Controller
      */
     public function show($id)
     {
-        //
+        
     }
 
     /**
