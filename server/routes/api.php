@@ -6,6 +6,7 @@ use App\Http\Controllers\teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\VideoUploader;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +48,11 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::post('/UpdateStudent','UpdateStudent');
             Route::get('/GetStudentData','GetStudentData');
             Route::post('/studentattendance','studentattendance');
+        });
+        Route::controller(VideoUploader::class)->group(function(){
+            Route::post('/upload-video', 'Store');
+            Route::get('/Destroy-video', 'Destroy');
+            Route::post('/Create-playlist', 'CreatePlaylist');
         });
     });
 

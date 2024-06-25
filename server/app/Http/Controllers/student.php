@@ -16,160 +16,172 @@ use App\Models\teachers;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 
 class student extends Controller
 {
     public function CreateStudent(Request $request)
-    {
+{
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|max:255',
+        'userName' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'StudentDOB' => 'required|date',
+        'StudentGender' => 'required|string',
+        'StudentCNIC' => 'required|string|max:255',
+        'subjects' => 'required',
+        'StudentClassID' => 'required|string',
+        'StudentPhoneNumber' => 'required|string|max:125',
+        'StudentHomeAddress' => 'required|string|max:255',
+        'StudentReligion' => 'required|string|max:255',
+        'StudentMonthlyFee' => 'required|max:255',
+        'FatherName' => 'required|string|max:255',
+        'MotherName' => 'required|string|max:255',
+        'GuardiansCNIC' => 'required|string|max:255',
+        'GuardiansPhoneNumber' => 'required|string|max:255',
+        'GuardiansPhoneNumber2' => 'string|max:255',
+        'HomeAddress' => 'required|string|max:255',
+        'GuardiansEmail' => 'required|email|max:255',
+        'image' => 'required'
+    ]);
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'userName' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'StudentDOB' => 'required|date',
-            'StudentGender' => 'required|string',
-            'StudentCNIC' => 'required|string|max:255',
-            'subjects' => 'required',
-            'StudentClassID' => 'required|string',
-            'StudentPhoneNumber' => 'required|string|max:125',
-            'StudentHomeAddress' => 'required|string|max:255',
-            'StudentReligion' => 'required|string|max:255',
-            'StudentMonthlyFee' => 'required|max:255',
-            'FatherName' => 'required|string|max:255',
-            'MotherName' => 'required|string|max:255',
-            'GuardiansCNIC' => 'required|string|max:255',
-            'GuardiansPhoneNumber' => 'required|string|max:255',
-            'GuardiansPhoneNumber2' => 'string|max:255',
-            'HomeAddress' => 'required|string|max:255',
-            'GuardiansEmail' => 'required|email|max:255',
-            'image' => 'required'
-        ]);
-
-        if ($validator->fails()) {
-            $response = [
-                'success' => false,
-                'message' => $validator->errors()
-            ];
-            return response()->json($response);
-        }
-
-        $user = $request->user();
-
-        if ($user->role == "Admin") {
-            $email = $request->input('email');
-            $ClassID = $request->input('StudentClassID');
-            $password = Str::random(12);
-            $BcryptPassword = bcrypt($password);
-            $role = "Student";
-            $user = users::create([
-                'name' => $request->input('name'),
-                'userName' => $request->input('userName'),
-                'role' => $role,
-                'email' => $request->input('email'),
-                'password' => $BcryptPassword
-            ]);
-            $userId = $user->id;
-            $subjects = $request->input('subjects');
-            foreach ($subjects as $subject) {
-                $subjectResult = subjects::create([
-                    'UsersID' => $userId,
-                    'SubjectName' => $subject
-                ]);
-            }
-            $pic = $request->input('image');
-            if (isset($pic)) {
-                // Ensure that an image was uploaded
-                $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $pic));
-
-                if ($imageData === false) {
-                    return response()->json(['success' => false, 'message' => 'Failed to decode image data'], 400);
-                }
-                $mimeType = mime_content_type($pic);
-
-                $extension = image_type_to_extension(exif_imagetype($pic));
-
-                $filename = uniqid() . $extension; // You can adjust the filename extension based on the image format
-
-                $storagePath = 'images/';
-
-                $savePath = public_path($storagePath . $filename);
-                if (file_put_contents($savePath, $imageData) === false) {
-                    return response()->json(['success' => false, 'message' => 'Failed to save image file'], 500);
-                }
-
-                // Assuming you want to associate the image path with the newly created record
-                $image = new images();
-                $image->UsersID = $userId;
-                $image->ImageName = $storagePath . $filename; // Store the image path
-                $image->save();
-            }
-            $class = classes::find($ClassID);
-            $StudentTeacherID = $class->ClassTeacherID;
-            $student = students::create([
-                'StudentUserID' => $userId,
-                'StudentClassID' => $request->input('StudentClassID'), // student Class ID
-                'StudentDOB' => $request->input('StudentDOB'),
-                'StudentGender' => $request->input('StudentGender'),
-                'StudentCNIC' => $request->input('StudentCNIC'),
-                'StudentPhoneNumber' => $request->input('StudentPhoneNumber'),
-                'StudentHomeAddress' => $request->input('StudentHomeAddress'),
-                'StudentReligion' => $request->input('StudentReligion'),
-                'StudentMonthlyFee' => $request->input('StudentMonthlyFee'),
-                'StudentTeacherID' => $StudentTeacherID
-            ]);
-            $StudentID = $student->id;
-            $parent = parents::create([
-                'StudentID' => $StudentID,
-                'FatherName' => $request->input('FatherName'), // student Class ID
-                'MotherName' => $request->input('MotherName'),
-                'GuardiansCNIC' => $request->input('GuardiansCNIC'),
-                'GuardiansPhoneNumber' => $request->input('GuardiansPhoneNumber'),
-                'GuardiansPhoneNumber2' => $request->input('GuardiansPhoneNumber2'),
-                'HomeAddress' => $request->input('HomeAddress'),
-                'GuardiansEmail' => $request->input('GuardiansEmail')
-            ]);
-            if ($parent) {
-                $Url = 'http://localhost:3000/login?email=' . urlencode($email) . '&password=' . urlencode($password);
-                $details = [
-                    'title' => 'Successfully Added a new Student',
-                    'body' => 'To login into your Student account please enter the following password',
-                    'password' => $password,
-                    'Url' => $Url
-                ];
-                try {
-                    Mail::to($email)->send(new \App\Mail\passwordSender($details));
-                    $response = [
-                        'success' => true,
-                        'message' => "Please check your email for Activation of account."
-                    ];
-                    return response()->json($response);
-                } catch (\Exception $e) {
-                    $response = [
-                        'success' => true,
-                        'message' => "Failed to send email. Please try again later."
-                    ];
-                    return response()->json($response);
-                }
-            } else {
-                $response = [
-                    'success' => false,
-                    'message' => "Sorry! Something went wrong. Please try again later."
-                ];
-                $user = users::find($userId);
-                $user->delete();
-                return response()->json($response);
-            }
-        } else {
-            $response = [
-                'success' => false,
-                'message' => "Only Admin Can Create Student"
-            ];
-            return response()->json($response);
-        }
+    if ($validator->fails()) {
+        return response()->json(['success' => false, 'message' => $validator->errors()]);
     }
 
+    $user = $request->user();
+
+    if ($user->role !== "Admin") {
+        return response()->json(['success' => false, 'message' => "Only Admin Can Create Student"]);
+    }
+
+    DB::beginTransaction();
+
+    try {
+        $email = $request->input('email');
+        $ClassID = $request->input('StudentClassID');
+        $password = Str::random(12);
+        $BcryptPassword = bcrypt($password);
+        $role = "Student";
+        
+        // Create user
+        $user = users::create([
+            'name' => $request->input('name'),
+            'userName' => $request->input('userName'),
+            'role' => $role,
+            'email' => $request->input('email'),
+            'password' => $BcryptPassword
+        ]);
+        
+        $userId = $user->id;
+        $subjects = $request->input('subjects');
+
+        // Create subjects
+        foreach ($subjects as $subject) {
+            subjects::create([
+                'UsersID' => $userId,
+                'SubjectName' => $subject
+            ]);
+        }
+
+        // Handle image upload
+        $pic = $request->input('image');
+        if (isset($pic)) {
+            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $pic));
+            if ($imageData === false) {
+                throw new \Exception('Failed to decode image data');
+            }
+
+            $extension = image_type_to_extension(exif_imagetype($pic));
+            $filename = uniqid() . $extension;
+            $storagePath = 'images/';
+            $savePath = public_path($storagePath . $filename);
+
+            if (file_put_contents($savePath, $imageData) === false) {
+                throw new \Exception('Failed to save image file');
+            }
+
+            $image = new images();
+            $image->UsersID = $userId;
+            $image->ImageName = $storagePath . $filename;
+            $image->save();
+        }
+
+        // Get class and teacher ID
+        $class = classes::find($ClassID);
+        if (!$class) {
+            throw new \Exception('Class not found');
+        }
+        $StudentTeacherID = $class->ClassTeacherID;
+
+        // Create student
+        $student = students::create([
+            'StudentUserID' => $userId,
+            'StudentClassID' => $request->input('StudentClassID'),
+            'StudentDOB' => $request->input('StudentDOB'),
+            'StudentGender' => $request->input('StudentGender'),
+            'StudentCNIC' => $request->input('StudentCNIC'),
+            'StudentPhoneNumber' => $request->input('StudentPhoneNumber'),
+            'StudentHomeAddress' => $request->input('StudentHomeAddress'),
+            'StudentReligion' => $request->input('StudentReligion'),
+            'StudentMonthlyFee' => $request->input('StudentMonthlyFee'),
+            'StudentTeacherID' => $StudentTeacherID
+        ]);
+
+        $StudentID = $student->id;
+
+        // Create parent
+        $parent = parents::create([
+            'StudentID' => $StudentID,
+            'FatherName' => $request->input('FatherName'),
+            'MotherName' => $request->input('MotherName'),
+            'GuardiansCNIC' => $request->input('GuardiansCNIC'),
+            'GuardiansPhoneNumber' => $request->input('GuardiansPhoneNumber'),
+            'GuardiansPhoneNumber2' => $request->input('GuardiansPhoneNumber2'),
+            'HomeAddress' => $request->input('HomeAddress'),
+            'GuardiansEmail' => $request->input('GuardiansEmail')
+        ]);
+
+        if (!$parent) {
+            throw new \Exception('Failed to create parent record');
+        }
+
+        // Commit transaction
+        DB::commit();
+
+        // Send email
+        $Url = 'http://localhost:3000/login?email=' . urlencode($email) . '&password=' . urlencode($password);
+        $details = [
+            'title' => 'Successfully Added a new Student',
+            'body' => 'To login into your Student account please enter the following password',
+            'password' => $password,
+            'Url' => $Url
+        ];
+
+        Mail::to($email)->send(new \App\Mail\passwordSender($details));
+
+        return response()->json(['success' => true, 'message' => "Please check your email for Activation of account."]);
+
+    } catch (\Exception $e) {
+        // Rollback transaction
+        DB::rollBack();
+
+        // Log error
+        \Log::error('Failed to create student: ' . $e->getMessage());
+
+        // Delete user if created
+        if (isset($userId)) {
+            $user = users::find($userId);
+            if ($user) {
+                $user->delete();
+            }
+        }
+
+        return response()->json(['success' => false, 'message' => "Sorry! Something went wrong. Please try again later."]);
+    }
+}
 
 
 
@@ -269,17 +281,57 @@ class student extends Controller
             if ($user->role == "Admin") {
                 $ID = $request->input('ID');
                 $student = students::find($ID);
-
-                if ($student) {
-                    $student->delete();
-                    $response = [
-                        'success' => true,
-                        'message' => "Successfully deleted"
-                    ];
-                    return response()->json($response);
-                } else {
-                    return response()->json(['success' => false, 'message' => 'Class not found']);
+    
+                if (!$student) {
+                    return response()->json(['success' => false, 'message' => 'Student not found'], 404);
                 }
+            
+                $UserID = $student->StudentUserID;
+                $image = images::where('UsersID', $UserID)->first();
+                
+                if (!$image) {
+                    \Log::error('Image not found for user ID: ' . $UserID);
+                    return response()->json(['success' => false, 'message' => 'Image not found'], 404);
+                }
+            
+                $imagePath = $image->ImageName;
+                $fullImagePath = public_path($imagePath);
+            
+                if (file_exists($fullImagePath)) {
+                    // Delete the image file
+                    if (unlink($fullImagePath)) {
+                        \Log::info('Image file deleted successfully: ' . $fullImagePath);
+                        $image->delete();
+                        
+                        if ($student) {
+                            $student->delete();
+                            $response = [
+                                'success' => true,
+                                'message' => "Successfully deleted"
+                            ];
+                            return response()->json($response);
+                        } else {
+                            return response()->json(['success' => false, 'message' => 'Student not found']);
+                        }
+
+                    } else {
+                        if ($student) {
+                            $student->delete();
+                            $response = [
+                                'success' => true,
+                                'message' => "Successfully deleted"
+                            ];
+                            return response()->json($response);
+                        } else {
+                            return response()->json(['success' => false, 'message' => 'Student not found']);
+                        }
+                    }
+                } else {
+                    \Log::error('Image file not found on disk: ' . $fullImagePath);
+                    return response()->json(['success' => false, 'message' => 'Image not found on disk'], 404);
+                }
+
+
             } else {
                 $response = [
                     'success' => false,
