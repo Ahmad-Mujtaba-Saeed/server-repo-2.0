@@ -15,9 +15,22 @@ class VideoUploader extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function PlaylistData()
     {
-        //
+        $playlistData = PlaylistVideo::all();
+        if($playlistData){
+            $response = [
+                'success' => true,
+                'data' => $playlistData
+            ];
+        }
+        else{
+            $response = [
+                'success' => false,
+                'message' => "Failed to fetch playlist data"
+            ];
+        }
+        return Response()->json($response);
     }
 
     /**
@@ -40,7 +53,7 @@ class VideoUploader extends Controller
             'UsersID' => $user->id,
             'PlaylistTitle' => $request->input('PlaylistTitle'),
             'PlaylistDescription' => $request->input('PlaylistDescription'),
-            'PlaylistRank' => $request->input('PlaylistRank'),
+            'PlaylistRank' => $request->input('PlaylistRank') ?? null,
             'playlistCategory' => $request->input('playlistCategory') ?? null,
             'Date' => $date
         ]);

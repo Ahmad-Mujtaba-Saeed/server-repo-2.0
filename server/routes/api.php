@@ -53,6 +53,7 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::post('/upload-video', 'Store');
             Route::get('/Destroy-video', 'Destroy');
             Route::post('/Create-playlist', 'CreatePlaylist');
+            Route::get('/PlaylistData','PlaylistData');
         });
     });
 
