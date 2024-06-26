@@ -57,6 +57,7 @@ class VideoUploader extends Controller
             'playlistCategory' => $request->input('playlistCategory') ?? null,
             'Date' => $date
         ]);
+
         if($playlistVideo){
             $response = [
                 'success' => true,
@@ -115,10 +116,10 @@ class VideoUploader extends Controller
                         $videoupload = videoupload::create($videoData);
             }
 
-            return response()->json(['path' => $path], 201);
+            return response()->json(['success'=> true ,'message' => 'successfully uploaded video']);
         }
 
-        return response()->json(['error' => 'File not uploaded'], 400);
+        return response()->json(['success'=> false ,'message' => 'Failed to upload video']);
     }
 
     /**

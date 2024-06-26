@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\Classess;
 use App\Http\Controllers\student;
 use App\Http\Controllers\teacher;
@@ -51,7 +52,7 @@ Route::middleware(['check.api.token'])->group(function () {
         });
         Route::controller(VideoUploader::class)->group(function(){
             Route::post('/upload-video', 'Store');
-            Route::get('/Destroy-video', 'Destroy');
+            Route::get('/destroy-video', 'Destroy');
             Route::post('/Create-playlist', 'CreatePlaylist');
             Route::get('/PlaylistData','PlaylistData');
         });
@@ -73,9 +74,7 @@ Route::middleware(['check.api.token'])->group(function () {
 
 
 
-Route::get('/test', function () {
-    return "test";
-});
+Route::post('/SendMessage', [ChatController::class, 'message']);
 Route::get('/csrf-token', function () {
     return response()->json(['csrfToken' => csrf_token()]);
 });
