@@ -144,7 +144,6 @@ class VideoUploader extends Controller
         }
     
         $fileContents = file_get_contents($path);
-        // Encode the file contents as base64
         $encodedFile = base64_encode($fileContents);
     
         return response()->json([
