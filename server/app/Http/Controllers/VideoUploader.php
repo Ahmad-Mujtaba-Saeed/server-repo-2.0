@@ -128,10 +128,24 @@ class VideoUploader extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function Show(Request $request)
     {
-        
+        $id = $request->query('ID');
+        $uploadedVideo = videoupload::find($id);
+    
+        if (!$uploadedVideo) {
+            return response()->json(['success' => false ,'message' => 'Video not found.']);
+        }
+    
+        $path = storage_path('app/public/' . $uploadedVideo->VideoName);
+    
+        if (!file_exists($path)) {
+            return response()->json(['success' => false , 'message' => 'Video not found.']);
+        }
+    
+        return response()->file($path);
     }
+    
 
     /**
      * Show the form for editing the specified resource.
