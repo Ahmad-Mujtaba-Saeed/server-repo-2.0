@@ -24,6 +24,11 @@ return new class extends Migration
             $table->string('VideoName');
             $table->date('Date');
             $table->timestamps();
+            
+            $table->foreign('VideoPlaylistID')
+            ->references('id')
+            ->on('VideoPlaylist')
+            ->onDelete('cascade');
         });
     }
 

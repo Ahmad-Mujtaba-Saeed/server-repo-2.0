@@ -131,7 +131,7 @@ class VideoUploader extends Controller
     public function Show(Request $request)
     {
         $id = $request->query('ID');
-        $uploadedVideo = videoupload::find($id);
+        $uploadedVideo = videoupload::with(['users:id,name,email','playlists'])->find($id);
     
         if (!$uploadedVideo) {
             return response()->json(['success' => false ,'message' => 'Video not found.']);

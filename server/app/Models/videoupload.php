@@ -27,4 +27,8 @@ class videoupload extends Model
     {
         return $this->belongsTo(users::class, 'UsersID');
     }
+    public function playlists()
+    {
+        return $this->belongsTo(PlaylistVideo::class, 'VideoPlaylistID');
+    }
 }
