@@ -143,7 +143,15 @@ class VideoUploader extends Controller
             return response()->json(['success' => false , 'message' => 'Video not found.']);
         }
     
-        return response()->file($path);
+        $fileContents = file_get_contents($path);
+        // Encode the file contents as base64
+        $encodedFile = base64_encode($fileContents);
+    
+        return response()->json([
+            'success' => true,
+            'data' => $uploadedVideo,
+            'file' => $encodedFile,
+        ]);
     }
     
 
