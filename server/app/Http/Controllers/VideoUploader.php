@@ -131,7 +131,7 @@ class VideoUploader extends Controller
     public function Show(Request $request)
     {
         $id = $request->query('ID');
-        $uploadedVideo = videoupload::with(['users:id,name,email','playlists'])->find($id);
+        $uploadedVideo = videoupload::find($id);
     
         if (!$uploadedVideo) {
             return response()->json(['success' => false ,'message' => 'Video not found.']);
@@ -142,17 +142,26 @@ class VideoUploader extends Controller
         if (!file_exists($path)) {
             return response()->json(['success' => false , 'message' => 'Video not found.']);
         }
-    
-        $fileContents = file_get_contents($path);
-        // Encode the file contents as base64
-        $encodedFile = base64_encode($fileContents);
-    
-        return response()->json([
-            'success' => true,
-            'data' => $uploadedVideo,
-            'file' => $encodedFile,
-        ]);
+
+        return response()->file($path);
     }
+
+
+
+    public function GetVideoInfo(Request $request)
+    {
+        $id = $request->query('ID');
+        $uploadedVideo = videoupload::with(['users:id,name,email','playlists'])->find($id);
+    
+        if (!$uploadedVideo) {
+            return response()->json(['success' => false ,'message' => 'Video not found.']);
+        }
+        return response()->json(['success' => true, 'data' => $uploadedVideo]);
+    }
+
+
+
+
     
 
     /**

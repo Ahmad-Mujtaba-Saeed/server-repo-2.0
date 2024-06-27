@@ -53,6 +53,7 @@ Route::middleware(['check.api.token'])->group(function () {
         Route::controller(VideoUploader::class)->group(function(){
             Route::post('/upload-video', 'Store');
             Route::get('/show-video', 'Show');
+            Route::get('/VideoInfo', 'GetVideoInfo');
             Route::get('/destroy-video', 'Destroy');
             Route::post('/Create-playlist', 'CreatePlaylist');
             Route::get('/PlaylistData','PlaylistData');
