@@ -17,6 +17,7 @@ class videoupload extends Model
         'VideoDescription',
         'VideoRank',
         'VideoPlaylistID',
+        'UploadedImgID',
         'Date'
     ];
 
@@ -30,5 +31,9 @@ class videoupload extends Model
     public function playlists()
     {
         return $this->belongsTo(PlaylistVideo::class, 'VideoPlaylistID');
+    }
+    public function images()
+    {
+        return $this->belongsTo(images::class, 'UploadedImgID');
     }
 }

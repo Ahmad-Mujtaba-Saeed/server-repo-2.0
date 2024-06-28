@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\images;
 use App\Models\PlaylistVideo;
 use App\Models\videoupload;
 use Illuminate\Http\Request;
@@ -78,6 +79,16 @@ class VideoUploader extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+     public function ShowVideoPicWData(Request $request){
+        $request->validate([
+            'Subject' => 'required',
+            'ClassRank' => 'required'
+        ]);
+
+     }
+
+
     public function Store(Request $request)
     {
         $request->validate([
@@ -88,6 +99,23 @@ class VideoUploader extends Controller
         ]);
 
         $user = $request->user();
+
+        $thumbnail = $request->input('thumbnail');
+        if (isset($thumbnail)) {
+            $request->validate([
+            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        // Handle the uploaded file
+        if ($request->file('thumbnail')) {
+            // Store the file in the public storage directory
+            $path = $request->file('thumbnail')->store('images', 'public');
+            }
+            $image = new images();
+            $image->UsersID = $user->id;
+            $image->ImageName = $path;
+            $image->save();
+        }
         
 
         if ($request->file('video')) {

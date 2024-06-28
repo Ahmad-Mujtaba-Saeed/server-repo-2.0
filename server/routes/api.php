@@ -68,6 +68,7 @@ Route::middleware(['check.api.token'])->group(function () {
         Route::controller(VideoUploader::class)->group(function(){
             Route::post('/upload-video', 'Store');
             Route::get('/show-video', 'Show');
+            Route::get('/ShowVideoPicWData', 'ShowVideoPicWData');
             Route::get('/VideoInfo', 'GetVideoInfo');
             Route::get('/destroy-video', 'Destroy');
             Route::post('/Create-playlist', 'CreatePlaylist');
@@ -78,17 +79,12 @@ Route::middleware(['check.api.token'])->group(function () {
         });
     });
 
-    Route::get('/protected-route', function () {
-        return response()->json(['message' => 'You have access']);
-    });
-
     Route::controller(AuthController::class)->group(function () {
         Route::post('/login', 'login');
         Route::post('/register', 'register');
         Route::post('/forgotPassword', 'forgotPassword');
     });
     
-
     Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify.email');
 });
 
