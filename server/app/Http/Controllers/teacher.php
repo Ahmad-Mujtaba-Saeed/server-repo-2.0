@@ -23,7 +23,7 @@ class teacher extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'userName' => 'required|string|max:255',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users',
             'TeacherDOB' => 'required|date',
             'subjects' => 'required',
             'TeacherCNIC' => 'required|string',

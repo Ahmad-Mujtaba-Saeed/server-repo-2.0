@@ -76,7 +76,7 @@ Route::middleware(['check.api.token'])->group(function () {
 
 
 
-Route::post('/SendMessage', [ChatController::class, 'message']);
+Route::post('/SendMessage', [ChatController::class, 'sendMessage']);
 Route::get('/csrf-token', function () {
     return response()->json(['csrfToken' => csrf_token()]);
 });
