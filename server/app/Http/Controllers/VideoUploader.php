@@ -121,7 +121,7 @@ class VideoUploader extends Controller
             $image->ImageName = $storagePath . $filename;
             $image->save();
         }
-        if($image){
+        if(!$image){
             throw new \Exception('Failed to save image Name to Database');
         }
         
