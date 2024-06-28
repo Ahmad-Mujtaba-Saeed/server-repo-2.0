@@ -4,6 +4,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\Classess;
 use App\Http\Controllers\student;
 use App\Http\Controllers\teacher;
+use GrahamCampbell\ResultType\Success;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -20,12 +21,26 @@ use App\Http\Controllers\VideoUploader;
 |
 */
 
+
+
+
+
 Route::middleware(['check.api.token'])->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/user', function (Request $request) {
-            return $request->user();
+            $user =  $request->user();
+            if($user){
+                return response()->json(['success' => true , 'data' => $user]);
+            }
+            else{
+                return response()->json(['success' => false , 'message' => 'failed to fetch user data']);
+            }
         });
+
+
+
+
         Route::controller(teacher::class)->group(function () {
             Route::post('/CreateTeacher', 'CreateTeacher');
             Route::get('/GetTeacher','GetTeacher');
@@ -57,6 +72,9 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::get('/destroy-video', 'Destroy');
             Route::post('/Create-playlist', 'CreatePlaylist');
             Route::get('/PlaylistData','PlaylistData');
+        });
+        Route::controller(ChatController::class)->group(function(){
+            Route::post('/PrivateMessage', 'PrivateMessage');
         });
     });
 
