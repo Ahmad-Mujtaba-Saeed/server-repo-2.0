@@ -18,6 +18,7 @@ class videoupload extends Model
         'VideoRank',
         'VideoPlaylistID',
         'UploadedImgID',
+        'VideoLength',
         'Date'
     ];
 

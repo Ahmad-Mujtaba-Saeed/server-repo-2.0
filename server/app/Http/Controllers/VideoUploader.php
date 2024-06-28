@@ -135,6 +135,7 @@ class VideoUploader extends Controller
                         $videoData = [
                             'UsersID' => $request->user()->id,
                             'VideoName' => $path,
+                            'VideoLength' => $request->input('VideoLength'),
                             'UploadedImgID' => $image->id,
                             'VideoTitle' => $request->input('VideoTitle'),
                             'VideoDescription' => $request->input('VideoDescription') ?? '',
