@@ -85,7 +85,7 @@ class VideoUploader extends Controller
             'Subject' => 'required',
             'ClassRank' => 'required'
         ]);
-
+        
      }
 
 
@@ -100,21 +100,29 @@ class VideoUploader extends Controller
 
         $user = $request->user();
 
-        $thumbnail = $request->input('thumbnail');
-        if (isset($thumbnail)) {
-            $request->validate([
-            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
-
-        // Handle the uploaded file
-        if ($request->file('thumbnail')) {
-            // Store the file in the public storage directory
-            $path = $request->file('thumbnail')->store('images', 'public');
+        $pic = $request->input('thumbnail');
+        if (isset($pic)) {
+            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $pic));
+            if ($imageData === false) {
+                throw new \Exception('Failed to decode image data');
             }
+
+            $extension = image_type_to_extension(exif_imagetype($pic));
+            $filename = uniqid() . $extension;
+            $storagePath = 'images/';
+            $savePath = public_path($storagePath . $filename);
+
+            if (file_put_contents($savePath, $imageData) === false) {
+                throw new \Exception('Failed to save image file');
+            }
+
             $image = new images();
             $image->UsersID = $user->id;
-            $image->ImageName = $path;
+            $image->ImageName = $storagePath . $filename;
             $image->save();
+        }
+        if($image){
+            throw new \Exception('Failed to save image Name to Database');
         }
         
 
@@ -127,7 +135,7 @@ class VideoUploader extends Controller
                         $videoData = [
                             'UsersID' => $request->user()->id,
                             'VideoName' => $path,
-                            
+                            'UploadedImgID' => $image->id,
                             'VideoTitle' => $request->input('VideoTitle'),
                             'VideoDescription' => $request->input('VideoDescription') ?? '',
                             'Date' => $date, // Set Date
