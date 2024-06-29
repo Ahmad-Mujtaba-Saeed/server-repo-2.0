@@ -55,7 +55,7 @@ class VideoUploader extends Controller
             'PlaylistTitle' => $request->input('PlaylistTitle'),
             'PlaylistDescription' => $request->input('PlaylistDescription'),
             'PlaylistRank' => $request->input('PlaylistRank') ?? null,
-            'playlistCategory' => $request->input('playlistCategory') ?? null,
+            'PlaylistCategory' => $request->input('playlistCategory') ?? null,
             'Date' => $date
         ]);
 
@@ -82,11 +82,12 @@ class VideoUploader extends Controller
 
      public function ShowVideoPicWData(Request $request){
         $request->validate([
-            'Subject' => 'required',
+            'Category' => 'required',
             'ClassRank' => 'required'
         ]);
-        
-     }
+        $data = PlaylistVideo::where('PlaylistRank',$request->input('ClassRank'))->where('PlaylistCategory',$request->input('Category'))->with('videos')->get();
+        return $data;
+    }
 
 
     public function Store(Request $request)
@@ -124,8 +125,6 @@ class VideoUploader extends Controller
         if(!$image){
             throw new \Exception('Failed to save image Name to Database');
         }
-        
-
         if ($request->file('video')) {
             $path = $request->file('video')->store('videos', 'public');
             if($path){

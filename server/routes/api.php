@@ -68,7 +68,7 @@ Route::middleware(['check.api.token'])->group(function () {
         Route::controller(VideoUploader::class)->group(function(){
             Route::post('/upload-video', 'Store');
             Route::get('/show-video', 'Show');
-            Route::get('/ShowVideoPicWData', 'ShowVideoPicWData');
+            Route::get('/showvideoDataPic', 'ShowVideoPicWData');
             Route::get('/VideoInfo', 'GetVideoInfo');
             Route::get('/destroy-video', 'Destroy');
             Route::post('/Create-playlist', 'CreatePlaylist');
@@ -76,6 +76,7 @@ Route::middleware(['check.api.token'])->group(function () {
         });
         Route::controller(ChatController::class)->group(function(){
             Route::post('/PrivateMessage', 'PrivateMessage');
+            Route::post('/MessageStoredData','MessageStore');
         });
     });
 

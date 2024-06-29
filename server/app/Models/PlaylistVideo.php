@@ -14,7 +14,7 @@ class PlaylistVideo extends Model
         'PlaylistTitle',
         'PlaylistDescription',
         'PlaylistRank',
-        'playlistCategory',
+        'PlaylistCategory',
         'Date'
     ];
 
@@ -24,5 +24,9 @@ class PlaylistVideo extends Model
     public function users()
     {
         return $this->belongsTo(users::class, 'UsersID');
+    }
+    public function videos()
+    {
+        return $this->hasMany(videoupload::class, 'VideoPlaylistID');
     }
 }
