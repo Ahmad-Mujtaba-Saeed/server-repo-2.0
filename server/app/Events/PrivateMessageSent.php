@@ -16,10 +16,13 @@ class PrivateMessageSent implements ShouldBroadcastNow
     public $message;
     public $receiverId;
 
-    public function __construct($message, $receiverId)
+    public $senderId;
+
+    public function __construct($message, $receiverId , $senderId)
     {
         $this->message = $message;
         $this->receiverId = $receiverId;
+        $this->senderId = $senderId;
     }
 
     public function broadcastOn()
@@ -29,6 +32,6 @@ class PrivateMessageSent implements ShouldBroadcastNow
 
     public function broadcastWith()
     {
-        return ['message' => $this->message];
+        return ['message' => $this->message , 'receiver_id' => $this->receiverId , 'senderId' => $this->senderId];
     }
 }

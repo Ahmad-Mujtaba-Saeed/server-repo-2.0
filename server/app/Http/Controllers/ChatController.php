@@ -47,10 +47,10 @@ class ChatController extends Controller
 
         $user = $request->user();
 
-        
+        $sender_id = $user->id;
         
             $messageSent = messages::create([
-                'Sending_id' => $user->id,
+                'Sending_id' => $sender_id,
                 'Message' => $message,
                 'Receiving_id' => $receiverId,
                 'Date' => $date,
@@ -59,7 +59,7 @@ class ChatController extends Controller
             if(!$messageSent){
                 return response()->json(['success' => false , 'message' => 'Failed to upload message to Database']);
             }
-            $messageEvent = event(new PrivateMessageSent($message, $receiverId));
+            $messageEvent = event(new PrivateMessageSent($message, $receiverId ,$sender_id));
             
             return response()->json(['success' => true , 'message' => 'Message sent successfully']);
 }
