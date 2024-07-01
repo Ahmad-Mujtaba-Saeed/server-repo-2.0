@@ -35,10 +35,7 @@ class teacher extends Controller
         ]);
     
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => $validator->errors()
-            ]);
+            throw new \Exception($validator->errors());
         }
     
         $user = $request->user();
@@ -131,7 +128,7 @@ class teacher extends Controller
     
             return response()->json([
                 'success' => false,
-                'message' => "Sorry! Something went wrong. Please try again later."
+                'message' => $e->getMessage()
             ]);
         }
     }
@@ -163,8 +160,9 @@ public function Delete(Request $request)
                 if (!$teacher) {
                     return response()->json(['success' => false, 'message' => 'teacher not found'], 404);
                 }
-            
+                
                 $UserID = $teacher->TeacherUserID;
+                $user = users::find($UserID);
                 $image = images::where('UsersID', $UserID)->first();
                 
                 if (!$image) {
@@ -181,8 +179,8 @@ public function Delete(Request $request)
                         \Log::info('Image file deleted successfully: ' . $fullImagePath);
                         $image->delete();
                         
-                        if ($teacher) {
-                            $teacher->delete();
+                        if ($teacher && $user) {
+                            $user->delete();
                             $response = [
                                 'success' => true,
                                 'message' => "Successfully deleted"
