@@ -13,8 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('VideoUpload', function (Blueprint $table) {
-            $table->string('VideoName');
+        Schema::create('comments', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('UsersID');
+            $table->string('Comment');
+            $table->unsignedBigInteger('VideoID');
+            $table->timestamps();
+            $table->foreign('VideoID')
+                ->references('id')
+                ->on('VideoUpload')
+                ->onDelete('cascade');
         });
     }
 

@@ -8,6 +8,7 @@ use App\Models\videoupload;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Response;
 
 class VideoUploader extends Controller
 {
@@ -18,6 +19,7 @@ class VideoUploader extends Controller
      */
     public function PlaylistData()
     {
+
         $playlistData = PlaylistVideo::all();
         if($playlistData){
             $response = [
@@ -80,13 +82,82 @@ class VideoUploader extends Controller
      * @return \Illuminate\Http\Response
      */
 
-     public function ShowVideoPicWData(Request $request){
-        $request->validate([
-            'Category' => 'required',
-            'ClassRank' => 'required'
-        ]);
-        $data = PlaylistVideo::where('PlaylistRank',$request->input('ClassRank'))->where('PlaylistCategory',$request->input('Category'))->with('videos')->get();
-        return $data;
+    public function GetplaylistData(Request $request){
+        $PlaylistID = $request->query('PlaylistID');
+
+        $playlistData = PlaylistVideo::find($PlaylistID)->with('videos.images')->first();
+
+        if ($playlistData) {
+            foreach ($playlistData->videos as $Video ){
+                if (isset($Video->images)) {
+                    $imgPath = $Video->images->ImageName;
+                    $Imgdata = base64_encode(file_get_contents(public_path($imgPath)));
+                    $Video->images->setAttribute('data', $Imgdata);
+                }
+            }
+            return response()->json(['success' => true, 'message' => 'playlist', 'data' => $playlistData]);
+        } else {
+            return response()->json(['success' => false, 'data' => [] ,'message' => 'Playlist Not found']);
+        }
+    }
+
+
+    public function UploadComment(Request $request){
+        
+    }
+
+
+    public function ShowVideoPicWData(Request $request){
+        $user = $request->user();
+        if($user->role == 'Admin'){
+            $validatedData = $request->validate([
+                'ClassRank' => 'required|integer',
+                'Subject' => 'required|string|max:255',
+            ]);
+            if($validatedData['Subject'] == "General"){
+                $videos = videoupload::where('VideoPlaylistID',null)
+                ->with(['users.images','images'])
+                ->get();
+                if ($videos) {
+                    foreach ($videos as $Eachvideo) {
+                            $imgPath = $Eachvideo->images->ImageName;
+                            $Imgdata = base64_encode(file_get_contents(public_path($imgPath)));
+                            $Eachvideo->images->setAttribute('data', $Imgdata);
+                    }
+                    return response()->json(['success' => true, 'message' => 'video', 'data' => $videos]);
+                } else {
+                    return response()->json(['success' => false, 'data' => [] ,'message' => 'Video Not found']);
+            }
+        }
+        else{
+            // Fetch the data using the validated query parameters
+            $data = PlaylistVideo::where('PlaylistRank', $validatedData['ClassRank'])
+                ->where('PlaylistCategory', $validatedData['Subject'])
+                ->with(['users.images','videos.images'])
+                ->get();
+
+                if ($data) {
+                    foreach ($data as $EachPlaylist) {
+                        if(isset($EachPlaylist->videos[0])){
+                        if(isset($EachPlaylist->users->images->ImageName)){
+                            $imgPath = $EachPlaylist->users->images->ImageName;
+                            $Imgdata = base64_encode(file_get_contents(public_path($imgPath)));
+                            $EachPlaylist->users->images->setAttribute('data', $Imgdata);
+                        }
+                        if (isset($EachPlaylist->videos[0]->images->ImageName)) {
+                            $imgPath = $EachPlaylist->videos[0]->images->ImageName;
+                            $Imgdata = base64_encode(file_get_contents(public_path($imgPath)));
+                            $EachPlaylist->videos[0]->images->setAttribute('data', $Imgdata);
+                        }
+                        }
+                    }
+                return response()->json(['success' => true, 'message' => 'playlist', 'data' => $data]);
+                } else {
+                    return response()->json(['success' => false, 'data' => [] ,'message' => 'Playlist Not found']);
+                }
+        }
+    }
+
     }
 
 
@@ -118,7 +189,6 @@ class VideoUploader extends Controller
             }
 
             $image = new images();
-            $image->UsersID = $user->id;
             $image->ImageName = $storagePath . $filename;
             $image->save();
         }
@@ -150,6 +220,19 @@ class VideoUploader extends Controller
                         }
 
                         $videoupload = videoupload::create($videoData);
+                if(!$videoupload){
+                $PrevImage = images::find($image->id)->first();
+                $PrevImagePath = $PrevImage->ImageName;
+
+                $fullImagePath = public_path($PrevImagePath);
+            
+                if (file_exists($fullImagePath)) {
+                    if (unlink($fullImagePath)) {
+                        \Log::info('Image file deleted successfully: ' . $fullImagePath);
+                        $PrevImage->delete();
+                    }
+                }
+                        }
             }
 
             return response()->json(['success'=> true ,'message' => 'successfully uploaded video']);
@@ -164,7 +247,7 @@ class VideoUploader extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function Show(Request $request)
+    public function ShowInfo(Request $request)
     {
         $id = $request->query('ID');
         $uploadedVideo = videoupload::with(['users:id,name,email','playlists'])->find($id);
@@ -178,17 +261,23 @@ class VideoUploader extends Controller
         if (!file_exists($path)) {
             return response()->json(['success' => false , 'message' => 'Video not found.']);
         }
-    
-        $fileContents = file_get_contents($path);
-        $encodedFile = base64_encode($fileContents);
-    
         return response()->json([
             'success' => true,
             'data' => $uploadedVideo,
-            'file' => $encodedFile,
         ]);
     }
     
+    public function Show(Request $request){
+        $id = $request->query('ID');
+        $uploadedVideo = videoupload::find($id);
+        $filePath = storage_path('app/public/' . $uploadedVideo->VideoName);
+
+
+        if (!Storage::disk('public')->exists($uploadedVideo->VideoName)) {
+            abort(404);
+        }
+        return response()->file($filePath, ['Content-Type' => 'video/mp4']);
+    }
 
     /**
      * Show the form for editing the specified resource.

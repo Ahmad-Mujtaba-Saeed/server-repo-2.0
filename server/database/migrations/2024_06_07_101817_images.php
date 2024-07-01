@@ -14,7 +14,7 @@ return new class extends Migration {
     {
         Schema::create('images', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('UsersID');
+            $table->unsignedBigInteger('UsersID')->nullable();
             $table->string('ImageName');
             $table->timestamps();
             $table->foreign('UsersID')

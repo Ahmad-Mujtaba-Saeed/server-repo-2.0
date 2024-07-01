@@ -280,8 +280,18 @@ public function UpdateTeacher(Request $request)
             if (file_put_contents($savePath, $imageData) === false) {
                 return response()->json(['success' => false, 'message' => 'Failed to save image file'], 500);
             }
+            $PrevImage = images::where('UsersID' , $ID)->first();
+            $PrevImagePath = $PrevImage->ImageName;
 
-            images::updateOrCreate(['UsersID' => $ID], ['ImageName' => $storagePath . $filename]);
+            $fullImagePath = public_path($PrevImagePath);
+            
+                if (file_exists($fullImagePath)) {
+                    if (unlink($fullImagePath)) {
+                        \Log::info('Image file deleted successfully: ' . $fullImagePath);
+                        images::updateOrCreate(['UsersID' => $ID], ['ImageName' => $storagePath . $filename]);
+                    }
+                }
+            
         }
 
             $teacher = teachers::where('TeacherUserID', $ID)->first();
