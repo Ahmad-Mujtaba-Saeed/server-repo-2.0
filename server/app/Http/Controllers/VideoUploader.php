@@ -85,7 +85,7 @@ class VideoUploader extends Controller
     public function GetplaylistData(Request $request){
         $PlaylistID = $request->query('PlaylistID');
 
-        $playlistData = PlaylistVideo::find($PlaylistID)->with('videos.images')->get();
+        $playlistData = PlaylistVideo::find($PlaylistID)->with('videos.images')->first();
 
         if ($playlistData) {
             foreach ($playlistData->videos as $Video ){
@@ -95,7 +95,7 @@ class VideoUploader extends Controller
                     $Video->images->setAttribute('data', $Imgdata);
                 }
             }
-        return response()->json(['success' => true, 'message' => 'playlist', 'data' => $playlistData]);
+            return response()->json(['success' => true, 'message' => 'playlist', 'data' => $playlistData]);
         } else {
             return response()->json(['success' => false, 'data' => [] ,'message' => 'Playlist Not found']);
         }
@@ -138,15 +138,17 @@ class VideoUploader extends Controller
 
                 if ($data) {
                     foreach ($data as $EachPlaylist) {
-                        if(isset($EachPlaylist->users->images)){
+                        if(isset($EachPlaylist->videos[0])){
+                        if(isset($EachPlaylist->users->images->ImageName)){
                             $imgPath = $EachPlaylist->users->images->ImageName;
                             $Imgdata = base64_encode(file_get_contents(public_path($imgPath)));
                             $EachPlaylist->users->images->setAttribute('data', $Imgdata);
                         }
-                        if (isset($EachPlaylist->videos[0]->images)) {
+                        if (isset($EachPlaylist->videos[0]->images->ImageName)) {
                             $imgPath = $EachPlaylist->videos[0]->images->ImageName;
                             $Imgdata = base64_encode(file_get_contents(public_path($imgPath)));
                             $EachPlaylist->videos[0]->images->setAttribute('data', $Imgdata);
+                        }
                         }
                     }
                 return response()->json(['success' => true, 'message' => 'playlist', 'data' => $data]);
@@ -218,6 +220,19 @@ class VideoUploader extends Controller
                         }
 
                         $videoupload = videoupload::create($videoData);
+                if(!$videoupload){
+                $PrevImage = images::find($image->id)->first();
+                $PrevImagePath = $PrevImage->ImageName;
+
+                $fullImagePath = public_path($PrevImagePath);
+            
+                if (file_exists($fullImagePath)) {
+                    if (unlink($fullImagePath)) {
+                        \Log::info('Image file deleted successfully: ' . $fullImagePath);
+                        $PrevImage->delete();
+                    }
+                }
+                        }
             }
 
             return response()->json(['success'=> true ,'message' => 'successfully uploaded video']);

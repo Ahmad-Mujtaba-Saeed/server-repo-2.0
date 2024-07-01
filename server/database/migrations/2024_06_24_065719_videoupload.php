@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('UsersID');
             // $table->string('VideoCategory');
             $table->string('VideoTitle');
-            $table->string('VideoDescription');
+            $table->longText('VideoDescription');
             // $table->integer('VideoRank')->nullable();
             $table->unsignedBigInteger('VideoPlaylistID')->nullable();
             $table->string('VideoName');
