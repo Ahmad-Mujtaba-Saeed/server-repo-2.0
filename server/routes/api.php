@@ -74,6 +74,8 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::get('/destroy-video', 'Destroy');
             Route::post('/Create-playlist', 'CreatePlaylist');
             Route::get('/PlaylistData','PlaylistData');
+            Route::get('/GetplaylistData','GetplaylistData');
+            Route::post('/UploadComment','UploadComment');
         });
         Route::controller(ChatController::class)->group(function(){
             Route::post('/PrivateMessage', 'PrivateMessage');

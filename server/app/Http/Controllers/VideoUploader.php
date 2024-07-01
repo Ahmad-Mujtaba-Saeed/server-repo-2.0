@@ -82,14 +82,54 @@ class VideoUploader extends Controller
      * @return \Illuminate\Http\Response
      */
 
-     public function ShowVideoPicWData(Request $request){
+    public function GetplaylistData(Request $request){
+        $PlaylistID = $request->query('PlaylistID');
+
+        $playlistData = PlaylistVideo::find($PlaylistID)->with('videos.images')->get();
+
+        if ($playlistData) {
+            foreach ($playlistData->videos as $Video ){
+                if (isset($Video->images)) {
+                    $imgPath = $Video->images->ImageName;
+                    $Imgdata = base64_encode(file_get_contents(public_path($imgPath)));
+                    $Video->images->setAttribute('data', $Imgdata);
+                }
+            }
+        return response()->json(['success' => true, 'message' => 'playlist', 'data' => $playlistData]);
+        } else {
+            return response()->json(['success' => false, 'data' => [] ,'message' => 'Playlist Not found']);
+        }
+    }
+
+
+    public function UploadComment(Request $request){
+        
+    }
+
+
+    public function ShowVideoPicWData(Request $request){
         $user = $request->user();
         if($user->role == 'Admin'){
             $validatedData = $request->validate([
                 'ClassRank' => 'required|integer',
                 'Subject' => 'required|string|max:255',
             ]);
-            
+            if($validatedData['Subject'] == "General"){
+                $videos = videoupload::where('VideoPlaylistID',null)
+                ->with(['users.images','images'])
+                ->get();
+                if ($videos) {
+                    foreach ($videos as $Eachvideo) {
+                            $imgPath = $Eachvideo->images->ImageName;
+                            $Imgdata = base64_encode(file_get_contents(public_path($imgPath)));
+                            $Eachvideo->images->setAttribute('data', $Imgdata);
+                    }
+                    return response()->json(['success' => true, 'message' => 'video', 'data' => $videos]);
+                } else {
+                    return response()->json(['success' => false, 'data' => [] ,'message' => 'Video Not found']);
+            }
+        }
+        else{
             // Fetch the data using the validated query parameters
             $data = PlaylistVideo::where('PlaylistRank', $validatedData['ClassRank'])
                 ->where('PlaylistCategory', $validatedData['Subject'])
@@ -98,12 +138,7 @@ class VideoUploader extends Controller
 
                 if ($data) {
                     foreach ($data as $EachPlaylist) {
-                        if (isset($EachPlaylist->users->images[0])) {
-                            $imgPath = $EachPlaylist->users->images[0]->ImageName;
-                            $Imgdata = base64_encode(file_get_contents(public_path($imgPath)));
-                            $EachPlaylist->users->images[0]->setAttribute('data', $Imgdata);
-                        }
-                        else if(isset($EachPlaylist->users->images)){
+                        if(isset($EachPlaylist->users->images)){
                             $imgPath = $EachPlaylist->users->images->ImageName;
                             $Imgdata = base64_encode(file_get_contents(public_path($imgPath)));
                             $EachPlaylist->users->images->setAttribute('data', $Imgdata);
@@ -114,11 +149,12 @@ class VideoUploader extends Controller
                             $EachPlaylist->videos[0]->images->setAttribute('data', $Imgdata);
                         }
                     }
-                return response()->json(['success' => true, 'data' => $data]);
+                return response()->json(['success' => true, 'message' => 'playlist', 'data' => $data]);
                 } else {
                     return response()->json(['success' => false, 'data' => [] ,'message' => 'Playlist Not found']);
                 }
         }
+    }
 
     }
 
@@ -151,7 +187,6 @@ class VideoUploader extends Controller
             }
 
             $image = new images();
-            $image->UsersID = 000000000000;
             $image->ImageName = $storagePath . $filename;
             $image->save();
         }

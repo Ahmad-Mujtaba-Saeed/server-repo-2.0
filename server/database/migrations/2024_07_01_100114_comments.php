@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      *
@@ -12,14 +13,15 @@ return new class extends Migration {
      */
     public function up()
     {
-        Schema::create('images', function (Blueprint $table) {
+        Schema::create('comments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('UsersID')->nullable();
-            $table->string('ImageName');
+            $table->unsignedBigInteger('UsersID');
+            $table->string('Comment');
+            $table->unsignedBigInteger('VideoID');
             $table->timestamps();
-            $table->foreign('UsersID')
+            $table->foreign('VideoID')
                 ->references('id')
-                ->on('users')
+                ->on('VideoUpload')
                 ->onDelete('cascade');
         });
     }
