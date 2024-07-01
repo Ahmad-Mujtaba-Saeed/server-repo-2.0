@@ -247,7 +247,7 @@ class VideoUploader extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function Show(Request $request)
+    public function ShowInfo(Request $request)
     {
         $id = $request->query('ID');
         $uploadedVideo = videoupload::with(['users:id,name,email','playlists'])->find($id);
@@ -261,17 +261,23 @@ class VideoUploader extends Controller
         if (!file_exists($path)) {
             return response()->json(['success' => false , 'message' => 'Video not found.']);
         }
-    
-        $fileContents = file_get_contents($path);
-        $encodedFile = base64_encode($fileContents);
-    
         return response()->json([
             'success' => true,
             'data' => $uploadedVideo,
-            'file' => $encodedFile,
         ]);
     }
     
+    public function Show(Request $request){
+        $id = $request->query('ID');
+        $uploadedVideo = videoupload::find($id);
+        $filePath = storage_path('app/public/' . $uploadedVideo->VideoName);
+
+
+        if (!Storage::disk('public')->exists($uploadedVideo->VideoName)) {
+            abort(404);
+        }
+        return response()->file($filePath, ['Content-Type' => 'video/mp4']);
+    }
 
     /**
      * Show the form for editing the specified resource.
