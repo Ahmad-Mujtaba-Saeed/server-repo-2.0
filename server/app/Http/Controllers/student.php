@@ -457,7 +457,17 @@ class student extends Controller
                     return response()->json(['success' => false, 'message' => 'Failed to save image file'], 500);
                 }
 
-                images::updateOrCreate(['UsersID' => $ID], ['ImageName' => $storagePath . $filename]);
+                $PrevImage = images::where('UsersID' , $ID)->first();
+                $PrevImagePath = $PrevImage->ImageName;
+    
+                $fullImagePath = public_path($PrevImagePath);
+                
+                    if (file_exists($fullImagePath)) {
+                        if (unlink($fullImagePath)) {
+                            \Log::info('Image file deleted successfully: ' . $fullImagePath);
+                            images::updateOrCreate(['UsersID' => $ID], ['ImageName' => $storagePath . $filename]);
+                        }
+                    }
             }
 
             $class = classes::find($request->input('StudentClassID'));

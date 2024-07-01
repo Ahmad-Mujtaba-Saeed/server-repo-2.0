@@ -8,6 +8,7 @@ use App\Models\videoupload;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Response;
 
 class VideoUploader extends Controller
 {
@@ -18,6 +19,7 @@ class VideoUploader extends Controller
      */
     public function PlaylistData()
     {
+
         $playlistData = PlaylistVideo::all();
         if($playlistData){
             $response = [
@@ -81,12 +83,43 @@ class VideoUploader extends Controller
      */
 
      public function ShowVideoPicWData(Request $request){
-        $request->validate([
-            'Category' => 'required',
-            'ClassRank' => 'required'
-        ]);
-        $data = PlaylistVideo::where('PlaylistRank',$request->input('ClassRank'))->where('PlaylistCategory',$request->input('Category'))->with('videos')->get();
-        return $data;
+        $user = $request->user();
+        if($user->role == 'Admin'){
+            $validatedData = $request->validate([
+                'ClassRank' => 'required|integer',
+                'Subject' => 'required|string|max:255',
+            ]);
+            
+            // Fetch the data using the validated query parameters
+            $data = PlaylistVideo::where('PlaylistRank', $validatedData['ClassRank'])
+                ->where('PlaylistCategory', $validatedData['Subject'])
+                ->with(['users.images','videos.images'])
+                ->get();
+
+                if ($data) {
+                    foreach ($data as $EachPlaylist) {
+                        if (isset($EachPlaylist->users->images[0])) {
+                            $imgPath = $EachPlaylist->users->images[0]->ImageName;
+                            $Imgdata = base64_encode(file_get_contents(public_path($imgPath)));
+                            $EachPlaylist->users->images[0]->setAttribute('data', $Imgdata);
+                        }
+                        else if(isset($EachPlaylist->users->images)){
+                            $imgPath = $EachPlaylist->users->images->ImageName;
+                            $Imgdata = base64_encode(file_get_contents(public_path($imgPath)));
+                            $EachPlaylist->users->images->setAttribute('data', $Imgdata);
+                        }
+                        if (isset($EachPlaylist->videos[0]->images)) {
+                            $imgPath = $EachPlaylist->videos[0]->images->ImageName;
+                            $Imgdata = base64_encode(file_get_contents(public_path($imgPath)));
+                            $EachPlaylist->videos[0]->images->setAttribute('data', $Imgdata);
+                        }
+                    }
+                return response()->json(['success' => true, 'data' => $data]);
+                } else {
+                    return response()->json(['success' => false, 'data' => [] ,'message' => 'Playlist Not found']);
+                }
+        }
+
     }
 
 
@@ -118,7 +151,7 @@ class VideoUploader extends Controller
             }
 
             $image = new images();
-            $image->UsersID = $user->id;
+            $image->UsersID = 000000000000;
             $image->ImageName = $storagePath . $filename;
             $image->save();
         }
