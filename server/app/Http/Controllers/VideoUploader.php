@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Response;
+use Illuminate\Support\Facades\File;
+use Illuminate\Http\Stream;
+
 
 
 class VideoUploader extends Controller
@@ -271,29 +274,57 @@ class VideoUploader extends Controller
     public function Show(Request $request){
         $id = $request->query('ID');
         $uploadedVideo = videoupload::find($id);
-        $filePath = storage_path('app/public/' . $uploadedVideo->VideoName);
 
-
-        if (!Storage::disk('public')->exists($uploadedVideo->VideoName)) {
-            abort(404);
+        if (!$uploadedVideo) {
+            abort(404, 'Video not found');
         }
 
+        $filePath = Storage::disk('public')->path($uploadedVideo->VideoName);
 
-        $response = new BinaryFileResponse($filePath);
-        $response->headers->set('Content-Type', 'video/mp4');
-        $response->headers->set('Accept-Ranges', 'bytes');
-    
-        // Handle Range request if present
-        $response->headers->set('Content-Length', filesize($filePath));
-        $response->headers->set('Content-Range', 'bytes ' . $request->headers->get('Range'));
-    
-        return $response;
-        
+        if (!Storage::disk('public')->exists($uploadedVideo->VideoName)) {
+            abort(404, 'File not found');
+        }
 
+        $fileSize = Storage::disk('public')->size($uploadedVideo->VideoName);
+        $stream = Storage::disk('public')->readStream($uploadedVideo->VideoName);
 
+        // Check if Range header is present
+        $rangeHeader = $request->header('Range');
+        if ($rangeHeader) {
+            // Parse range header (e.g., "bytes=0-100")
+            preg_match('/bytes=(\d+)-(\d+)?/', $rangeHeader, $matches);
+            $start = (int) $matches[1];
+            $end = isset($matches[2]) ? (int) $matches[2] : $fileSize - 1;
 
+            // Validate range
+            $start = max(0, $start);
+            $end = min($end, $fileSize - 1);
 
+            // Set headers for partial content response
+            $length = $end - $start + 1;
+            $headers = [
+                'Content-Type' => Storage::disk('public')->mimeType($uploadedVideo->VideoName),
+                'Content-Length' => $length,
+                'Accept-Ranges' => 'bytes',
+                'Content-Range' => "bytes $start-$end/$fileSize",
+                'Status' => '206 Partial Content',
+            ];
 
+            return response()->stream(function () use ($stream, $start, $length) {
+                fseek($stream, $start);
+                echo fread($stream, $length);
+                fclose($stream);
+            }, 206, $headers);
+        }
+
+        // If Range header is not present, stream the entire file
+        return response()->stream(function () use ($stream) {
+            fpassthru($stream);
+        }, 200, [
+            'Content-Type' => Storage::disk('public')->mimeType($uploadedVideo->VideoName),
+            'Content-Length' => $fileSize,
+            'Accept-Ranges' => 'bytes',
+        ]);
         // return response()->file($filePath, ['Content-Type' => 'video/mp4']);
     }
 
