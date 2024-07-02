@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Response;
 
+
 class VideoUploader extends Controller
 {
     /**
@@ -276,7 +277,24 @@ class VideoUploader extends Controller
         if (!Storage::disk('public')->exists($uploadedVideo->VideoName)) {
             abort(404);
         }
-        return response()->file($filePath, ['Content-Type' => 'video/mp4']);
+
+
+        $response = new BinaryFileResponse($filePath);
+        $response->headers->set('Content-Type', 'video/mp4');
+        $response->headers->set('Accept-Ranges', 'bytes');
+    
+        // Handle Range request if present
+        $response->headers->set('Content-Length', filesize($filePath));
+        $response->headers->set('Content-Range', 'bytes ' . $request->headers->get('Range'));
+    
+        return $response;
+        
+
+
+
+
+
+        // return response()->file($filePath, ['Content-Type' => 'video/mp4']);
     }
 
     /**
