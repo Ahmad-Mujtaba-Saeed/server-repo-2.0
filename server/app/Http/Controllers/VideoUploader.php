@@ -89,7 +89,7 @@ class VideoUploader extends Controller
     public function GetplaylistData(Request $request){
         $PlaylistID = $request->query('PlaylistID');
 
-        $playlistData = PlaylistVideo::find($PlaylistID)->with('videos.images')->first();
+        $playlistData = PlaylistVideo::where('id',$PlaylistID)->with('videos.images')->first();
 
         if ($playlistData) {
             foreach ($playlistData->videos as $Video ){
@@ -271,23 +271,23 @@ class VideoUploader extends Controller
         ]);
     }
     
-    public function Show(Request $request){
+    public function Show(Request $request) {
         $id = $request->query('ID');
         $uploadedVideo = videoupload::find($id);
-
+    
         if (!$uploadedVideo) {
             abort(404, 'Video not found');
         }
-
+    
         $filePath = Storage::disk('public')->path($uploadedVideo->VideoName);
-
+    
         if (!Storage::disk('public')->exists($uploadedVideo->VideoName)) {
             abort(404, 'File not found');
         }
-
+    
         $fileSize = Storage::disk('public')->size($uploadedVideo->VideoName);
         $stream = Storage::disk('public')->readStream($uploadedVideo->VideoName);
-
+    
         // Check if Range header is present
         $rangeHeader = $request->header('Range');
         if ($rangeHeader) {
@@ -295,11 +295,11 @@ class VideoUploader extends Controller
             preg_match('/bytes=(\d+)-(\d+)?/', $rangeHeader, $matches);
             $start = (int) $matches[1];
             $end = isset($matches[2]) ? (int) $matches[2] : $fileSize - 1;
-
+    
             // Validate range
             $start = max(0, $start);
             $end = min($end, $fileSize - 1);
-
+    
             // Set headers for partial content response
             $length = $end - $start + 1;
             $headers = [
@@ -307,16 +307,14 @@ class VideoUploader extends Controller
                 'Content-Length' => $length,
                 'Accept-Ranges' => 'bytes',
                 'Content-Range' => "bytes $start-$end/$fileSize",
-                'Status' => '206 Partial Content',
             ];
-
+    
             return response()->stream(function () use ($stream, $start, $length) {
                 fseek($stream, $start);
                 echo fread($stream, $length);
-                fclose($stream);
             }, 206, $headers);
         }
-
+    
         // If Range header is not present, stream the entire file
         return response()->stream(function () use ($stream) {
             fpassthru($stream);
@@ -325,8 +323,8 @@ class VideoUploader extends Controller
             'Content-Length' => $fileSize,
             'Accept-Ranges' => 'bytes',
         ]);
-        // return response()->file($filePath, ['Content-Type' => 'video/mp4']);
     }
+    
 
     /**
      * Show the form for editing the specified resource.
