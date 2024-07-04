@@ -89,7 +89,7 @@ class VideoUploader extends Controller
     public function GetplaylistData(Request $request){
         $PlaylistID = $request->query('PlaylistID');
 
-        $playlistData = PlaylistVideo::find($PlaylistID)->with('videos.images')->first();
+        $playlistData = PlaylistVideo::where('id',$PlaylistID)->with('videos.images')->first();
 
         if ($playlistData) {
             foreach ($playlistData->videos as $Video ){
@@ -324,6 +324,7 @@ class VideoUploader extends Controller
             'Accept-Ranges' => 'bytes',
         ]);
     }
+    
 
     /**
      * Show the form for editing the specified resource.
