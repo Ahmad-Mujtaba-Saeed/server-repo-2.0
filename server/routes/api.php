@@ -29,12 +29,11 @@ Route::middleware(['check.api.token'])->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/user', function (Request $request) {
-            $user =  $request->user();
-            if($user){
-                return response()->json(['success' => true , 'data' => $user]);
-            }
-            else{
-                return response()->json(['success' => false , 'message' => 'failed to fetch user data']);
+            $user = $request->user();
+            if ($user) {
+                return response()->json(['success' => true, 'data' => $user]);
+            } else {
+                return response()->json(['success' => false, 'message' => 'failed to fetch user data']);
             }
         });
 
@@ -43,30 +42,31 @@ Route::middleware(['check.api.token'])->group(function () {
 
         Route::controller(teacher::class)->group(function () {
             Route::post('/CreateTeacher', 'CreateTeacher');
-            Route::get('/GetTeacher','GetTeacher');
-            Route::get('/GetTeacherData','GetTeacherData');
-            Route::post('/UpdateTeacher','UpdateTeacher');
-            Route::post('/DeleteTeacher','Delete');
-            Route::post('/GetTeacherInformation','GetTeacherInformation');
+            Route::get('/GetTeacher', 'GetTeacher');
+            Route::get('/GetTeacherData', 'GetTeacherData');
+            Route::post('/UpdateTeacher', 'UpdateTeacher');
+            Route::post('/DeleteTeacher', 'Delete');
+            Route::post('/GetTeacherInformation', 'GetTeacherInformation');
+            Route::get('/GetTeacherClassinfo', 'GetTeacherClassinfo');
         });
-        Route::controller(Classess::class)->group(function (){
-            Route::post('/CreateClass','CreateClass');
-            Route::post('/UpdateClass','UpdateClass');
-            Route::get('/GetClasses','GetClasses');
-            Route::post('/DeleteClass','Delete');
-            Route::get('/GetClassData','GetClassData');
+        Route::controller(Classess::class)->group(function () {
+            Route::post('/CreateClass', 'CreateClass');
+            Route::post('/UpdateClass', 'UpdateClass');
+            Route::get('/GetClasses', 'GetClasses');
+            Route::post('/DeleteClass', 'Delete');
+            Route::get('/GetClassData', 'GetClassData');
         });
-        Route::controller(student::class)->group(function (){
-            Route::post('/CreateStudent','CreateStudent');
-            Route::post('/GetStudentInformation','GetStudentInformation');
-            Route::post('/GetStudentClassDetailInfo','GetStudentClassDetailInfo');
-            Route::post('/DeleteStudent','Delete');
-            Route::post('/UpdateStudent','UpdateStudent');
-            Route::get('/GetStudentData','GetStudentData');
-            Route::get('/GetStudentDataFORChat','GetStudentDataFORChat');
-            Route::post('/studentattendance','studentattendance');
+        Route::controller(student::class)->group(function () {
+            Route::post('/CreateStudent', 'CreateStudent');
+            Route::post('/GetStudentInformation', 'GetStudentInformation');
+            Route::post('/GetStudentClassDetailInfo', 'GetStudentClassDetailInfo');
+            Route::post('/DeleteStudent', 'Delete');
+            Route::post('/UpdateStudent', 'UpdateStudent');
+            Route::get('/GetStudentData', 'GetStudentData');
+            Route::get('/GetStudentDataFORChat', 'GetStudentDataFORChat');
+            Route::post('/studentattendance', 'studentattendance');
         });
-        Route::controller(VideoUploader::class)->group(function(){
+        Route::controller(VideoUploader::class)->group(function () {
             Route::post('/upload-video', 'Store');
             Route::get('/show-video', 'Show');
             Route::get('/show-video-info', 'ShowInfo');
@@ -74,13 +74,13 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::get('/VideoInfo', 'GetVideoInfo');
             Route::get('/destroy-video', 'Destroy');
             Route::post('/Create-playlist', 'CreatePlaylist');
-            Route::get('/PlaylistData','PlaylistData');
-            Route::get('/GetplaylistData','GetplaylistData');
-            Route::post('/UploadComment','UploadComment');
+            Route::get('/PlaylistData', 'PlaylistData');
+            Route::get('/GetplaylistData', 'GetplaylistData');
+            Route::post('/UploadComment', 'UploadComment');
         });
-        Route::controller(ChatController::class)->group(function(){
+        Route::controller(ChatController::class)->group(function () {
             Route::post('/PrivateMessage', 'PrivateMessage');
-            Route::post('/MessageStoredData','MessageStore');
+            Route::post('/MessageStoredData', 'MessageStore');
         });
     });
 
@@ -89,7 +89,7 @@ Route::middleware(['check.api.token'])->group(function () {
         Route::post('/register', 'register');
         Route::post('/forgotPassword', 'forgotPassword');
     });
-    
+
     Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify.email');
 });
 

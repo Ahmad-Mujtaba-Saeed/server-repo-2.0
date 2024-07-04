@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\classes;
 use App\Models\images;
 use App\Models\students;
+use Hamcrest\TypeSafeDiagnosingMatcher;
 use Illuminate\Http\Request;
+use Response;
 use Validator;
 use Auth;
 use App\Models\users;
@@ -315,7 +317,17 @@ public function UpdateTeacher(Request $request)
 }
 
 
-
+public function GetTeacherClassinfo(Request $request){
+    $user = $request->user();
+    if($user->role == "Teacher"){
+        $data = teachers::with('classes');
+        $response = [
+            'success' => true,
+            'data' => $data
+        ];
+        return Response().json($response);
+    }
+}
 
 public function GetTeacherInformation(Request $request){
     $user = $request->user();
