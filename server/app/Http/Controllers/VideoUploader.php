@@ -134,10 +134,7 @@ class VideoUploader extends Controller
                     return response()->json(['success' => false, 'data' => [] ,'message' => 'Video Not found']);
             }
         }
-        else{
-            $user = users::with('students.classes')->find($user->id);
-            return $user;
-            $data = PlaylistVideo::where('PlaylistRank', $user->students->classes->ClassRank)
+        $data = PlaylistVideo::where('PlaylistRank', $validatedData['ClassRank'])
                 ->where('PlaylistCategory', $validatedData['Subject'])
                 ->with(['users.images','videos.images'])
                 ->get();
@@ -161,7 +158,51 @@ class VideoUploader extends Controller
                 } else {
                     return response()->json(['success' => false, 'data' => [] ,'message' => 'Playlist Not found']);
                 }
+    }
+        else{
+            $validatedData = $request->validate([
+                'Subject' => 'required|string|max:255',
+            ]);
+            if($validatedData['Subject'] == "General"){
+                $videos = videoupload::where('VideoPlaylistID',null)
+                ->with(['users.images','images'])
+                ->get();
+                if ($videos) {
+                    foreach ($videos as $Eachvideo) {
+                            $imgPath = $Eachvideo->images->ImageName;
+                            $Imgdata = base64_encode(file_get_contents(public_path($imgPath)));
+                            $Eachvideo->images->setAttribute('data', $Imgdata);
+                    }
+                    return response()->json(['success' => true, 'message' => 'video', 'data' => $videos]);
+                } else {
+                    return response()->json(['success' => false, 'data' => [] ,'message' => 'Video Not found']);
+            }
         }
+            $user = users::with('students.classes')->find($user->id);
+            $data = PlaylistVideo::where('PlaylistRank', $user->students[0]->classes->ClassRank)
+                ->where('PlaylistCategory', $validatedData['Subject'])
+                ->with(['users.images','videos.images'])
+                ->get();
+
+                if ($data) {
+                    foreach ($data as $EachPlaylist) {
+                        if(isset($EachPlaylist->videos[0])){
+                        if(isset($EachPlaylist->users->images->ImageName)){
+                            $imgPath = $EachPlaylist->users->images->ImageName;
+                            $Imgdata = base64_encode(file_get_contents(public_path($imgPath)));
+                            $EachPlaylist->users->images->setAttribute('data', $Imgdata);
+                        }
+                        if (isset($EachPlaylist->videos[0]->images->ImageName)) {
+                            $imgPath = $EachPlaylist->videos[0]->images->ImageName;
+                            $Imgdata = base64_encode(file_get_contents(public_path($imgPath)));
+                            $EachPlaylist->videos[0]->images->setAttribute('data', $Imgdata);
+                        }
+                        }
+                    }
+                return response()->json(['success' => true, 'message' => 'playlist', 'data' => $data]);
+                } else {
+                    return response()->json(['success' => false, 'data' => [] ,'message' => 'Playlist Not found']);
+                }
     }
 
     }
