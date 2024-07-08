@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\images;
 use App\Models\PlaylistVideo;
+use App\Models\users;
 use App\Models\videoupload;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -113,7 +114,7 @@ class VideoUploader extends Controller
 
     public function ShowVideoPicWData(Request $request){
         $user = $request->user();
-        if($user->role == 'Admin'){
+        if($user->role == 'Admin' || $user->role == 'Teacher'){
             $validatedData = $request->validate([
                 'ClassRank' => 'required|integer',
                 'Subject' => 'required|string|max:255',
@@ -134,8 +135,9 @@ class VideoUploader extends Controller
             }
         }
         else{
-            
-            $data = PlaylistVideo::where('PlaylistRank', $validatedData['ClassRank'])
+            $user = users::with('students.classes')->find($user->id);
+            return $user;
+            $data = PlaylistVideo::where('PlaylistRank', $user->students->classes->ClassRank)
                 ->where('PlaylistCategory', $validatedData['Subject'])
                 ->with(['users.images','videos.images'])
                 ->get();
