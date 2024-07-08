@@ -320,12 +320,12 @@ public function UpdateTeacher(Request $request)
 public function GetTeacherClassinfo(Request $request){
     $user = $request->user();
     if($user->role == "Teacher"){
-        $data = teachers::with('classes');
+        $data = teachers::where('TeacherUserID',$user->id)->with('classes')->first();
         $response = [
             'success' => true,
             'data' => $data
         ];
-        return Response().json($response);
+        return Response()->json($response);
     }
 }
 

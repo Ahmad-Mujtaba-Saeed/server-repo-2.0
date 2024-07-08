@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Validator;
 use App\Models\classes;
+use Illuminate\Validation\Rule;
 
 
 class Classess extends Controller
@@ -12,8 +13,15 @@ class Classess extends Controller
     public function CreateClass(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'ClassName' => 'required|string|max:255',
-            'ClassRank' => 'required|string|max:255',
+'ClassRank' => 'required|string|max:255',
+'ClassName' => [
+    'required',
+    'string',
+    'max:255',
+    Rule::unique('classes')->where(function ($query) {
+        return $query->where('ClassRank', request('ClassRank'));
+    }),
+],
             'ClassFloor' => 'required',
             'ClassTeacherID' => 'required'
         ]);
