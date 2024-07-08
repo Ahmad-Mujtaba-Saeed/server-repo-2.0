@@ -170,7 +170,7 @@ class Classess extends Controller
 
             if ($user->role == "Admin") {
                 $ID = $request->input('ID');
-                $class = classes::find($ID);
+                $class = classes::with('students.users')->find($ID);
                 if ($class) {
                     $class->delete();
                     $classes = classes::all();
