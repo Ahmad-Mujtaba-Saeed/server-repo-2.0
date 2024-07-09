@@ -63,7 +63,6 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::post('/DeleteStudent', 'Delete');
             Route::post('/UpdateStudent', 'UpdateStudent');
             Route::get('/GetStudentData', 'GetStudentData');
-            Route::get('/GetStudentDataFORChat', 'GetStudentDataFORChat');
             Route::post('/studentattendance', 'studentattendance');
         });
         Route::controller(VideoUploader::class)->group(function () {
@@ -81,6 +80,7 @@ Route::middleware(['check.api.token'])->group(function () {
         Route::controller(ChatController::class)->group(function () {
             Route::post('/PrivateMessage', 'PrivateMessage');
             Route::post('/MessageStoredData', 'MessageStore');
+            Route::get('/GetEachStoredMessages', 'GetEachStoredMessages');
         });
     });
 

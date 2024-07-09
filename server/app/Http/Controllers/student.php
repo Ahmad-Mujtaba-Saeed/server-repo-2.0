@@ -227,42 +227,6 @@ class student extends Controller
 
 
 
-    public function GetStudentDataFORChat(Request $request)
-    {
-        $user = $request->user();
-        if ($user->role == 'Student') {
-            $students = students::with('users')->get();
-            if ($students) {
-                foreach ($students as $student) {
-                    if (isset($student->users->images[0])) {
-                        $imgPath = $student->users->images[0]->ImageName;
-                        $data = base64_encode(file_get_contents(public_path($imgPath)));
-                        $student->users->images[0]->setAttribute('data', $data);
-                    }
-                }
-                return response()->json(['success' => true, 'data' => $students]);
-            } else {
-                return response()->json(['success' => false, 'message' => 'Student not found']);
-            }
-        } else {
-            $students = students::with('users')->get();
-            if ($students) {
-                foreach ($students as $student) {
-                    if (isset($student->users->images[0])) {
-                        $imgPath = $student->users->images[0]->ImageName;
-                        $data = base64_encode(file_get_contents(public_path($imgPath)));
-                        $student->users->images[0]->setAttribute('data', $data);
-                    }
-                }
-                return response()->json(['success' => true, 'data' => $students]);
-            } else {
-                return response()->json(['success' => false, 'message' => 'Student not found']);
-            }
-        }
-    }
-
-
-
 
 
     public function GetStudentInformation(Request $request)

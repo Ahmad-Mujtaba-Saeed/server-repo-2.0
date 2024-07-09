@@ -18,4 +18,9 @@ class messages extends Model
     ];
 
     protected $table = 'messages';
+
+    public function sender()
+    {
+        return $this->belongsTo(users::class, 'Sending_id');
+    }
 }
