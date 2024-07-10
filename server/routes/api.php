@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\Classess;
+use App\Http\Controllers\PriceController;
 use App\Http\Controllers\student;
 use App\Http\Controllers\teacher;
 use GrahamCampbell\ResultType\Success;
@@ -80,6 +81,11 @@ Route::middleware(['check.api.token'])->group(function () {
         });
         Route::controller(ChatController::class)->group(function () {
             Route::post('/PrivateMessage', 'PrivateMessage');
+            Route::post('/MessageStoredData', 'MessageStore');
+            Route::get('/GetEachStoredMessages', 'GetEachStoredMessages');
+        });
+        Route::controller(PriceController::class)->group(function () {
+            Route::get('/GenerateStudentFee', 'GenerateStudentFee');
             Route::post('/MessageStoredData', 'MessageStore');
             Route::get('/GetEachStoredMessages', 'GetEachStoredMessages');
         });

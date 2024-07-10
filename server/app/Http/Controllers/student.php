@@ -197,7 +197,7 @@ class student extends Controller
         return response()->json(['success' => true , 'presentCount' => $presentCount , 'absentCount' => $absentCount , 'attendance' => $attendance]);
     }
 
-
+    
     public function GetStudentClassDetailInfo(Request $request)
     {
         $validator = Validator::make($request->all(), [
