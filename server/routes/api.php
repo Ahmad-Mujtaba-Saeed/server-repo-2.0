@@ -86,7 +86,7 @@ Route::middleware(['check.api.token'])->group(function () {
         });
         Route::controller(PriceController::class)->group(function () {
             Route::get('/GenerateStudentFee', 'GenerateStudentFee');
-            Route::post('/MessageStoredData', 'MessageStore');
+            Route::post('/GenerateStudentFeePaid', 'GenerateStudentFeePaid');
             Route::get('/GetEachStoredMessages', 'GetEachStoredMessages');
         });
     });

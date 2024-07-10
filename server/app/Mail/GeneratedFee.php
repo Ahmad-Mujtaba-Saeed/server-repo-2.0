@@ -34,7 +34,7 @@ class GeneratedFee extends Mailable
      */
     public function build()
     {
-        return $this->subject('Student Fee Generated')
+        return $this->subject($this->details['Subject'])
                     ->view('emails.GeneratedFee');
     }
 }
