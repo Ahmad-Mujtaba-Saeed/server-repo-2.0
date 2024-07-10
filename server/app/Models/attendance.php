@@ -15,7 +15,7 @@ class attendance extends Model
         'Date'
     ];
 
-    protected $table = 'attendance';
+    protected $table = 'Attendance';
 
     // Define the relationship with the User model
     public function users()

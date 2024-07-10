@@ -36,7 +36,7 @@ class student extends Controller
             'StudentPhoneNumber' => 'required|string|max:125',
             'StudentHomeAddress' => 'required|string|max:255',
             'StudentReligion' => 'required|string|max:255',
-            'StudentMonthlyFee' => 'required|max:255',
+            'StudentMonthlyFee' => 'required',
             'FatherName' => 'required|string|max:255',
             'MotherName' => 'required|string|max:255',
             'GuardiansCNIC' => 'required|string|max:255',
@@ -46,9 +46,11 @@ class student extends Controller
             'GuardiansEmail' => 'required|email|max:255',
             'image' => 'required'
         ]);
-
+        
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => $validator->errors()]);
+            // Log the errors to debug
+            \Log::error($validator->errors());
+            return response()->json(['success' => false, 'message' => $validator->errors() ,'validatormessage' => true]);
         }
 
         $user = $request->user();
@@ -179,12 +181,21 @@ class student extends Controller
                 }
             }
 
-            return response()->json(['success' => false, 'message' => "Sorry! Something went wrong. Please try again later."]);
+            return response()->json(['success' => false, 'message' => "Sorry! Something went wrong. Please try again later." ,'error' => $e->getMessage()]);
         }
     }
 
 
 
+    public function GetStudentAttendance(Request $request)
+    {
+        $user = $request->user();
+        $ID = $user->id;
+        $attendance = attendance::where('UsersID', $ID)->get();
+        $presentCount = $attendance->where('attendance', 'Present')->count();
+        $absentCount = $attendance->where('attendance', 'Absent')->count();
+        return response()->json(['success' => true , 'presentCount' => $presentCount , 'absentCount' => $absentCount , 'attendance' => $attendance]);
+    }
 
 
     public function GetStudentClassDetailInfo(Request $request)
@@ -221,42 +232,6 @@ class student extends Controller
                 }
             } else {
                 return response()->json(['success' => false, 'message' => 'Class not found']);
-            }
-        }
-    }
-
-
-
-    public function GetStudentDataFORChat(Request $request)
-    {
-        $user = $request->user();
-        if ($user->role == 'Student') {
-            $students = students::with('users')->get();
-            if ($students) {
-                foreach ($students as $student) {
-                    if (isset($student->users->images[0])) {
-                        $imgPath = $student->users->images[0]->ImageName;
-                        $data = base64_encode(file_get_contents(public_path($imgPath)));
-                        $student->users->images[0]->setAttribute('data', $data);
-                    }
-                }
-                return response()->json(['success' => true, 'data' => $students]);
-            } else {
-                return response()->json(['success' => false, 'message' => 'Student not found']);
-            }
-        } else {
-            $students = students::with('users')->get();
-            if ($students) {
-                foreach ($students as $student) {
-                    if (isset($student->users->images[0])) {
-                        $imgPath = $student->users->images[0]->ImageName;
-                        $data = base64_encode(file_get_contents(public_path($imgPath)));
-                        $student->users->images[0]->setAttribute('data', $data);
-                    }
-                }
-                return response()->json(['success' => true, 'data' => $students]);
-            } else {
-                return response()->json(['success' => false, 'message' => 'Student not found']);
             }
         }
     }

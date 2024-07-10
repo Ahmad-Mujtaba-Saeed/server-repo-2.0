@@ -49,8 +49,8 @@ class VideoUploader extends Controller
     public function CreatePlaylist(Request $request)
     {
         $request->validate([
-            'PlaylistTitle' => 'required',
-            'PlaylistDescription' => 'required',
+            'PlaylistTitle' => 'required|max:100',
+            'PlaylistDescription' => 'required|max:1000',
         ]);
         $currentDateTime = Carbon::now();
             $date = $currentDateTime->format('Y-m-d');
@@ -212,8 +212,8 @@ class VideoUploader extends Controller
     {
         $request->validate([
             'video' => 'required|file|max:2097152', // 2 GB in kilobytes (1024 * 1024 * 2)
-            'VideoTitle' => 'required|string|max:255',
-            'VideoDescription' => 'nullable|string',
+            'VideoTitle' => 'required|string|max:100',
+            'VideoDescription' => 'nullable|string|max:1000',
             'VideoPlaylistID' => 'nullable|integer',
         ]);
 
