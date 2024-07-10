@@ -44,6 +44,11 @@ class users extends Authenticatable
     }
 
 
+    public function comments()
+    {
+        return $this->hasMany(comments::class, 'UsersID');
+    }
+
     public function subjects()
     {
         return $this->hasMany(subjects::class, 'UsersID');

@@ -37,4 +37,8 @@ class videoupload extends Model
     {
         return $this->belongsTo(images::class, 'UploadedImgID');
     }
+    public function comments()
+    {
+        return $this->hasMany(comments::class, 'VideoID');
+    }
 }

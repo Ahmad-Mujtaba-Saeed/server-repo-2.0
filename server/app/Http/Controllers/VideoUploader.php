@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\comments;
 use App\Models\images;
 use App\Models\PlaylistVideo;
 use App\Models\users;
@@ -288,6 +289,23 @@ class VideoUploader extends Controller
         return response()->json(['success'=> false ,'message' => 'Failed to upload video']);
     }
 
+    public function StoreComment(Request $request){
+        $user = $request->user();
+        $ID = $user->id;
+        $VideoID = (int) $request->input('VideoID');
+        $Comment = $request->input('Comment');
+        $commentstored = comments::create([
+            'UsersID' => $ID,
+            'Comment' => $Comment,
+            'VideoID' => $VideoID
+        ]);
+        if($commentstored){
+            return response()->json(['success'=> true ,'message' => 'successfully uploaded comment']);
+        }else{
+            return response()->json(['success'=> false ,'message' => 'Failed to upload comment']);
+        }
+    }
+
     /**
      * Display the specified resource.
      *
@@ -297,8 +315,21 @@ class VideoUploader extends Controller
     public function ShowInfo(Request $request)
     {
         $id = $request->query('ID');
-        $uploadedVideo = videoupload::with(['users:id,name,email','playlists'])->find($id);
-    
+        $uploadedVideo = videoupload::with(['users:id,name,email','playlists','comments.users.images'])->find($id);
+        
+        if ($uploadedVideo) {
+            $comments = $uploadedVideo->comments;
+            foreach ($comments as $comment) {
+                if (isset($comment->users->images[0])) {
+                    $imgPath = $comment->users->images[0]->ImageName;
+                    $data = base64_encode(file_get_contents(public_path($imgPath)));
+                    $comment->users->images[0]->setAttribute('data', $data);
+                }
+            }
+        } else {
+            return response()->json(['success' => false, 'message' => 'Student not found']);
+        }
+        
         if (!$uploadedVideo) {
             return response()->json(['success' => false ,'message' => 'Video not found.']);
         }
@@ -311,6 +342,7 @@ class VideoUploader extends Controller
         return response()->json([
             'success' => true,
             'data' => $uploadedVideo,
+            
         ]);
     }
     

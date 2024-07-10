@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\messages;
+use App\Models\users;
 use Illuminate\Http\Request;
 use App\Events\MessageSent;
 use App\Events\PrivateMessageSent;
@@ -66,25 +67,20 @@ class ChatController extends Controller
     }
     public function GetEachStoredMessages(Request $request)
     {
-        $user = $request->user();
-        $ID = $user->id;
+        $users = users::with(['images'])->get();
 
-        // Get the latest message for each distinct sending_id
-        $subQuery = messages::select(\DB::raw('MAX(id) as id'))
-            ->where('Receiving_id', $ID)
-            ->groupBy('Sending_id');
-
-        $EachMessages = messages::whereIn('id', $subQuery->pluck('id'))
-            ->with('sender.images') // Assuming you want to eager load the sender details
-            ->get();
-            foreach ($EachMessages as $Message) {
-                if (isset($Message->sender->images[0])) {
-                    $imgPath = $Message->sender->images[0]->ImageName;
+        if ($users) {
+            foreach ($users as $user) {
+                if (isset($user->images[0])) {
+                    $imgPath = $user->images[0]->ImageName;
                     $data = base64_encode(file_get_contents(public_path($imgPath)));
-                    $Message->sender->images[0]->setAttribute('data', $data);
+                    $user->images[0]->setAttribute('data', $data);
                 }
             }
+        } else {
+            return response()->json(['success' => false, 'message' => 'Student not found']);
+        }
 
-        return response()->json(['success' => true, 'data' => $EachMessages]);
+        return response()->json(['success' => true, 'data' => $users]);
     }
 }
