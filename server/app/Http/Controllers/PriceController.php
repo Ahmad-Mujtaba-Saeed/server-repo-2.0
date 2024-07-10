@@ -92,5 +92,8 @@ class PriceController extends Controller
             return response()->json(['success' => false, 'message' => 'Generated fee record not found']);
         }
     }
-    
+    public function TeacherFeePaid(Request $request){
+        $ID = $request->query('ID');
+        
+    }
 }
