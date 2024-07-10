@@ -9,6 +9,6 @@
     <br>
     <p style="color:blueviolet; font-family:'Times New Roman', Times, serif">{{ $details['body'] }}</p>
     <br>
-    <p>Your remaining Balance = {{$details['Fee']}}</p>
+    <p>Ammount = {{$details['Fee']}}</p>
 </body>
 </html>
