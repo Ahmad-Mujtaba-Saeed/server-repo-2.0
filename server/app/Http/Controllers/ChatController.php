@@ -68,7 +68,6 @@ class ChatController extends Controller
     {
         $user = $request->user();
         $ID = $user->id;
-        $ID = $user->id;
 
         // Get the latest message for each distinct sending_id
         $subQuery = messages::select(\DB::raw('MAX(id) as id'))

@@ -36,7 +36,7 @@ class student extends Controller
             'StudentPhoneNumber' => 'required|string|max:125',
             'StudentHomeAddress' => 'required|string|max:255',
             'StudentReligion' => 'required|string|max:255',
-            'StudentMonthlyFee' => 'required|max:255',
+            'StudentMonthlyFee' => 'required',
             'FatherName' => 'required|string|max:255',
             'MotherName' => 'required|string|max:255',
             'GuardiansCNIC' => 'required|string|max:255',
@@ -46,9 +46,11 @@ class student extends Controller
             'GuardiansEmail' => 'required|email|max:255',
             'image' => 'required'
         ]);
-
+        
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => $validator->errors()]);
+            // Log the errors to debug
+            \Log::error($validator->errors());
+            return response()->json(['success' => false, 'message' => $validator->errors() ,'validatormessage' => true]);
         }
 
         $user = $request->user();
@@ -179,12 +181,21 @@ class student extends Controller
                 }
             }
 
-            return response()->json(['success' => false, 'message' => "Sorry! Something went wrong. Please try again later."]);
+            return response()->json(['success' => false, 'message' => "Sorry! Something went wrong. Please try again later." ,'error' => $e->getMessage()]);
         }
     }
 
 
 
+    public function GetStudentAttendance(Request $request)
+    {
+        $user = $request->user();
+        $ID = $user->id;
+        $attendance = attendance::where('UsersID', $ID)->get();
+        $presentCount = $attendance->where('attendance', 'Present')->count();
+        $absentCount = $attendance->where('attendance', 'Absent')->count();
+        return response()->json(['success' => true , 'presentCount' => $presentCount , 'absentCount' => $absentCount , 'attendance' => $attendance]);
+    }
 
 
     public function GetStudentClassDetailInfo(Request $request)
