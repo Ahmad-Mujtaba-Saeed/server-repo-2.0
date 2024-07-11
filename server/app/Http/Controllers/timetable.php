@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\teachers;
 use Illuminate\Http\Request;
+use Response;
 use Validator;
 
 class timetable extends Controller
@@ -25,8 +27,42 @@ class timetable extends Controller
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(),[
-            ''
+            'ClassID' => $request->input('classId'),
+            'Subject' => $request->input('subject'),
+            'TeacherID' => $request->input('teacherId'),
+            'StartingTime' => $request->input('startTime'),
+            'EndingTime' => $request->input('endTime'),
+            'Day' => $request->input('day'),
         ]);
+        if($validator->fails()){
+            return Response()->json(['success'=> false , 'message'=> $validator->errors()]);
+        }
+        $user = $request->user();
+        $ID = $user->id;
+        if($user->role == 'Admin' ){
+            $timetable = \App\Models\timetable::create($validator->validated());
+            if($timetable){
+                return Response()->json(['success'=> false , 'message'=> 'Successfully Created time table']);
+            }else{
+                return Response()->json(['success'=> false , 'message'=> 'Failed to create time table']);
+            }
+        }
+        else if($user->role == 'Teacher'){
+            $teacher = teachers::with('classes')->where('TeacherUserID',$ID)->first();
+            if($teacher->classes->id == $request->ClassID){
+                $timetable = \App\Models\timetable::create($validator->validated());
+                if($timetable){
+                    return Response()->json(['success'=> false , 'message'=> 'Successfully Created time table']);
+                }else{
+                    return Response()->json(['success'=> false , 'message'=> 'Failed to create time table']);
+                }
+            }
+            else{
+                return Response()->json(['success'=> false , 'message'=> 'Teacher can only create time table of its own class']);
+            }
+        }else{
+            return Response()->json(['success'=> false , 'message'=> 'Only admin can create time table']);
+        }
     }
 
     /**
