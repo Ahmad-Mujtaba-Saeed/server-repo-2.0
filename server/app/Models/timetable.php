@@ -14,7 +14,8 @@ class timetable extends Model
         'Subject',
         'TeacherID',
         'StartingTime',
-        'EndingTime'
+        'EndingTime',
+        'Day'
     ];
 
     protected $table = 'timetable';

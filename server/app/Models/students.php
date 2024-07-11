@@ -27,7 +27,10 @@ class students extends Model
     {
         return $this->belongsTo(users::class, 'StudentUserID');
     }
-
+    public function images()
+    {
+        return $this->hasOne(images::class,'UsersID','StudentUserID');
+    }
     public function classes()
     {
         return $this->belongsTo(classes::class, 'StudentClassID');

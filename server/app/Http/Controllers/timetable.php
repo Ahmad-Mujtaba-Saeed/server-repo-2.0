@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Validator;
 
 class timetable extends Controller
 {
@@ -21,9 +22,11 @@ class timetable extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(),[
+            ''
+        ]);
     }
 
     /**

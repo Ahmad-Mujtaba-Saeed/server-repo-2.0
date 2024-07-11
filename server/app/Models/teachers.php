@@ -25,7 +25,10 @@ class teachers extends Model
 
     protected $table = 'teachers';
 
-    
+    public function images()
+    {
+        return $this->hasOne(images::class, 'UsersID', 'TeacherUserID');
+    }
     public function students()
     {
         return $this->hasMany(students::class, 'StudentTeacherID');
@@ -40,6 +43,6 @@ class teachers extends Model
     }
     public function subjects()
     {
-        return $this->hasOne(subjects::class, 'UsersID' , 'TeacherUserID');
+        return $this->hasOne(subjects::class, 'UsersID', 'TeacherUserID');
     }
 }
