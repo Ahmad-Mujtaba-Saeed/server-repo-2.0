@@ -30,8 +30,8 @@ class timetable extends Controller
             'classId' => 'required|integer|exists:classes,id',
             'subject' => 'required|string|max:255',
             'teacherId' => 'required|integer|exists:teachers,id',
-            'startTime' => 'required|date_format:H:i',
-            'endTime' => 'required|date_format:H:i|after:startTime',
+            'startTime' => 'required|date_format:H:i:s',
+            'endTime' => 'required|date_format:H:i:s|after:startTime',
             'day' => 'required|string|max:255',
         ]);
         if ($validator->fails()) {
