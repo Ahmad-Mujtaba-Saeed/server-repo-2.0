@@ -30,8 +30,8 @@ class timetable extends Controller
             'ClassID' => $request->input('classId'),
             'Subject' => $request->input('subject'),
             'TeacherID' => $request->input('teacherId'),
-            'StartingTime' => $request->input('startTime'),
-            'EndingTime' => $request->input('endTime'),
+            'StartingTime' => (int)$request->input('startTime'),
+            'EndingTime' => (int) $request->input('endTime'),
             'Day' => $request->input('day'),
         ]);
         if($validator->fails()){
