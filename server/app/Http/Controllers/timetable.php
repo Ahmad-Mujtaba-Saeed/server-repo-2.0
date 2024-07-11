@@ -36,10 +36,11 @@ class timetable extends Controller
             'endTime' => [
                 'required',
                 'date_format:H:i:s',
-                'after:startTime',-
-                new CheckTimeOverLap($request->input('teacherId') , $request->input('startTime'), $request->input('day')),
+                'after:startTime',
+                new CheckTimeOverLap($request->input('teacherId'), $request->input('startTime'), $request->input('day')),
             ],
         ]);
+        
         if ($validator->fails()) {
             return Response()->json(['success' => false, 'message' => $validator->errors()]);
         }

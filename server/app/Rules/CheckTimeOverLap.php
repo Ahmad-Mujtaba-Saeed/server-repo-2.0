@@ -23,7 +23,6 @@ class CheckTimeOverLap implements Rule
         $this->startTime = $startTime;
         $this->day = $day;
     }
-
     public function passes($attribute, $value)
     {
         $this->endTime = $value;
@@ -36,7 +35,7 @@ class CheckTimeOverLap implements Rule
                       ->orWhere(function ($query) {
                           $query->where('StartingTime', '<=', $this->startTime)
                                 ->where('EndingTime', '>=', $this->endTime);
-                      });
+                    });
             })
             ->exists();
     }
