@@ -21,15 +21,9 @@ use App\Http\Controllers\VideoUploader;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
-
-
-
-
 Route::middleware(['check.api.token'])->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
-
 
         Route::controller(teacher::class)->group(function () {
             Route::post('/CreateTeacher', 'CreateTeacher');
