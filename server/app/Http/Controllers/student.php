@@ -26,7 +26,7 @@ class student extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'userName' => 'required|string|max:255',
+            'userName' => 'required|unique:users|string|max:255',
             'email' => 'required|email|unique:users',
             'StudentDOB' => 'required|date',
             'StudentGender' => 'required|string',
@@ -259,7 +259,7 @@ class student extends Controller
                 ->where('ClassName', $ClassName)
                 ->first();
             if ($Class) {
-                $students = $Class->students()->with('users.images','subjects', 'parents')->get();
+                $students = $Class->students()->with('users.images','subjects:id,UsersID,SubjectName', 'parents')->get();
                 if ($students) {
                     foreach ($students as $student) {
                         if (isset($student->users->images[0])) {

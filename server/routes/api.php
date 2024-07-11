@@ -5,6 +5,7 @@ use App\Http\Controllers\Classess;
 use App\Http\Controllers\PriceController;
 use App\Http\Controllers\student;
 use App\Http\Controllers\teacher;
+use App\Http\Controllers\timetable;
 use GrahamCampbell\ResultType\Success;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -74,6 +75,9 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::get('/GenerateStudentFee', 'GenerateStudentFee');
             Route::post('/GenerateStudentFeePaid', 'GenerateStudentFeePaid');
             Route::get('/TeacherPayPaid', 'TeacherPayPaid');
+        });
+        Route::controller(timetable::class)->group(function () {
+            Route::post('/CreateTimeTable', 'create');
         });
         Route::get('/user', [AuthController::class, 'User']);
     });
