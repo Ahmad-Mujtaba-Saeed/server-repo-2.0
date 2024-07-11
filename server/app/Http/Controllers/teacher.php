@@ -413,8 +413,10 @@ public function GetTeacherInformation(Request $request){
 
 
 
-    public function GetTeacher(){
-        $teachers = teachers::with('users','classes')->get();
+
+    public function GetTeacher(Request $request){
+        $with = $request->input('query');
+        $teachers = teachers::with($with)->get();
         if($teachers){
         $response = [
             'success' => true,

@@ -43,6 +43,6 @@ class teachers extends Model
     }
     public function subjects()
     {
-        return $this->hasOne(subjects::class, 'UsersID', 'TeacherUserID');
+        return $this->hasOne(subjects::class, 'UsersID','TeacherUserID');
     }
 }
