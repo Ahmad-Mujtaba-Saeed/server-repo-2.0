@@ -12,6 +12,16 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+
+    public function User(Request $request) {
+        $user = $request->user();
+        if ($user) {
+            return response()->json(['success' => true, 'data' => $user]);
+        } else {
+            return response()->json(['success' => false, 'message' => 'failed to fetch user data']);
+        }
+    }
+
     public function register(Request $request)
     {
 

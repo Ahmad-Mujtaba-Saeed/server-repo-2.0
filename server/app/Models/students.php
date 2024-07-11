@@ -27,7 +27,10 @@ class students extends Model
     {
         return $this->belongsTo(users::class, 'StudentUserID');
     }
-
+    public function images()
+    {
+        return $this->hasOne(images::class,'UsersID','StudentUserID');
+    }
     public function classes()
     {
         return $this->belongsTo(classes::class, 'StudentClassID');
@@ -38,10 +41,13 @@ class students extends Model
     {
         return $this->belongsTo(teachers::class, 'StudentTeacherID');
     }
-    
     public function parents()
     {
         return $this->hasOne(parents::class, 'StudentID');
+    }
+    public function subjects()
+    {
+        return $this->hasMany(subjects::class, 'UsersID' , 'StudentUserID');
     }
 
 }

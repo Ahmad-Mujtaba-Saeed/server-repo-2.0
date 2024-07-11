@@ -5,6 +5,7 @@ use App\Http\Controllers\Classess;
 use App\Http\Controllers\PriceController;
 use App\Http\Controllers\student;
 use App\Http\Controllers\teacher;
+use App\Http\Controllers\timetable;
 use GrahamCampbell\ResultType\Success;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -21,25 +22,9 @@ use App\Http\Controllers\VideoUploader;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
-
-
-
-
 Route::middleware(['check.api.token'])->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/user', function (Request $request) {
-            $user = $request->user();
-            if ($user) {
-                return response()->json(['success' => true, 'data' => $user]);
-            } else {
-                return response()->json(['success' => false, 'message' => 'failed to fetch user data']);
-            }
-        });
-
-
-
 
         Route::controller(teacher::class)->group(function () {
             Route::post('/CreateTeacher', 'CreateTeacher');
@@ -66,6 +51,7 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::get('/GetStudentData', 'GetStudentData');
             Route::post('/studentattendance', 'studentattendance');
             Route::get('/GetStudentAttendance','GetStudentAttendance');
+            Route::get('/ResetPassword','ResetPassword');
         });
         Route::controller(VideoUploader::class)->group(function () {
             Route::post('/upload-video', 'Store');
@@ -90,6 +76,10 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::post('/GenerateStudentFeePaid', 'GenerateStudentFeePaid');
             Route::get('/TeacherPayPaid', 'TeacherPayPaid');
         });
+        Route::controller(timetable::class)->group(function () {
+            Route::post('/CreateTimeTable', 'create');
+        });
+        Route::get('/user', [AuthController::class, 'User']);
     });
 
     Route::controller(AuthController::class)->group(function () {
@@ -98,7 +88,7 @@ Route::middleware(['check.api.token'])->group(function () {
         Route::post('/forgotPassword', 'forgotPassword');
     });
 
-    Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify.email');
+    // Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify.email');
 });
 
 

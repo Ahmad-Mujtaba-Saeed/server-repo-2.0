@@ -26,7 +26,7 @@ class student extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'userName' => 'required|string|max:255',
+            'userName' => 'required|unique:users|string|max:255',
             'email' => 'required|email|unique:users',
             'StudentDOB' => 'required|date',
             'StudentGender' => 'required|string',
@@ -259,7 +259,7 @@ class student extends Controller
                 ->where('ClassName', $ClassName)
                 ->first();
             if ($Class) {
-                $students = $Class->students()->with('users.images', 'parents')->get();
+                $students = $Class->students()->with('users.images','subjects:id,UsersID,SubjectName', 'parents')->get();
                 if ($students) {
                     foreach ($students as $student) {
                         if (isset($student->users->images[0])) {
@@ -478,6 +478,32 @@ class student extends Controller
         }
 
         return response()->json(['success' => false, 'message' => "Sorry! Something went wrong. Please try again later."]);
+    }
+
+
+
+    public function ResetPassword(Request $request){
+        $ID = $request->query('ID');
+        $users = users::find($ID);
+        $user = $request->user();
+        if($user->role == 'Admin'){
+            $password = Str::random(12);
+            $BcryptPassword = bcrypt($password);
+            $users->password = $BcryptPassword;
+            $users->save();
+            $Url = 'http://localhost:3000/login?email=' . urlencode($users->email) . '&password=' . urlencode($password);
+            $details = [
+                'title' => 'Successfully Added a new Student',
+                'body' => 'To login into your Student account please enter the following password',
+                'password' => $password,
+                'Url' => $Url
+            ];
+            Mail::to($users->email)->send(new \App\Mail\passwordSender($details));
+            return response()->json(['success' => true, 'message' => "Please Check your Email for Password"]);
+        }
+        else{
+            return response()->json(['success' => false, 'message' => "Only Admin Can Update Student"], 403);
+        }
     }
 
 

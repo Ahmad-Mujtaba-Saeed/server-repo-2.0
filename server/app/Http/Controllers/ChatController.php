@@ -67,7 +67,9 @@ class ChatController extends Controller
     }
     public function GetEachStoredMessages(Request $request)
     {
-        $users = users::with(['images'])->get();
+        $user = $request->user();
+        $ID = $user->id;
+        $users = users::with('images')->where('id', '!=', $ID)->get();        
 
         if ($users) {
             foreach ($users as $user) {

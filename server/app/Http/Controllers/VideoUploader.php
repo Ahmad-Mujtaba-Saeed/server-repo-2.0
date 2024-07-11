@@ -329,7 +329,7 @@ class VideoUploader extends Controller
         } else {
             return response()->json(['success' => false, 'message' => 'Student not found']);
         }
-        
+
         if (!$uploadedVideo) {
             return response()->json(['success' => false ,'message' => 'Video not found.']);
         }
@@ -342,7 +342,6 @@ class VideoUploader extends Controller
         return response()->json([
             'success' => true,
             'data' => $uploadedVideo,
-            
         ]);
     }
     
