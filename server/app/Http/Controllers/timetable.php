@@ -32,13 +32,13 @@ class timetable extends Controller
             'subject' => 'required|string|max:255',
             'teacherId' => 'required|integer|exists:teachers,id',
             'startTime' => 'required|date_format:H:i:s',
+            'day' => 'required|string|max:255',
             'endTime' => [
                 'required',
                 'date_format:H:i:s',
-                'after:startTime',
-                new CheckTimeOverLap($request->input('teacherId'), $request->input('startTime')),
+                'after:startTime',-
+                new CheckTimeOverLap($request->input('teacherId') , $request->input('startTime'), $request->input('day')),
             ],
-            'day' => 'required|string|max:255',
         ]);
         if ($validator->fails()) {
             return Response()->json(['success' => false, 'message' => $validator->errors()]);

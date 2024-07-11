@@ -15,11 +15,13 @@ class CheckTimeOverLap implements Rule
     protected $teacherId;
     protected $startTime;
     protected $endTime;
+    protected $day;
 
-    public function __construct($teacherId, $startTime)
+    public function __construct($teacherId, $startTime , $day)
     {
         $this->teacherId = $teacherId;
         $this->startTime = $startTime;
+        $this->day = $day;
     }
 
     public function passes($attribute, $value)
@@ -27,6 +29,7 @@ class CheckTimeOverLap implements Rule
         $this->endTime = $value;
 
         return !timetable::where('TeacherID', $this->teacherId)
+            ->where('Day', $this->day)
             ->where(function ($query) {
                 $query->whereBetween('StartingTime', [$this->startTime, $this->endTime])
                       ->orWhereBetween('EndingTime', [$this->startTime, $this->endTime])
