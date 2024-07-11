@@ -50,6 +50,7 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::get('/GetStudentData', 'GetStudentData');
             Route::post('/studentattendance', 'studentattendance');
             Route::get('/GetStudentAttendance','GetStudentAttendance');
+            Route::get('/ResetPassword','ResetPassword');
         });
         Route::controller(VideoUploader::class)->group(function () {
             Route::post('/upload-video', 'Store');
