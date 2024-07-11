@@ -30,7 +30,7 @@ class timetable extends Controller
         $validator = Validator::make($request->all(), [
             'classId' => 'required|integer|exists:classes,id',
             'subject' => 'required|string|max:255',
-            'teacherId' => 'required|integer|exists:teachers,id',
+            'teacherId' => 'required|integer',
             'startTime' => 'required|date_format:H:i:s',
             'day' => 'required|string|max:255',
             'endTime' => [
@@ -40,7 +40,7 @@ class timetable extends Controller
                 new CheckTimeOverLap($request->input('teacherId'), $request->input('startTime'), $request->input('day')),
             ],
         ]);
-        
+
         if ($validator->fails()) {
             return Response()->json(['success' => false, 'message' => $validator->errors()]);
         }
@@ -52,7 +52,7 @@ class timetable extends Controller
                 'Subject' => $request->input('subject'),
                 'TeacherID' => $request->input('teacherId'),
                 'StartingTime' => $request->input('startTime'),
-                'EndingTime' =>  $request->input('endTime'),
+                'EndingTime' => $request->input('endTime'),
                 'Day' => $request->input('day'),
             ]);
             if ($timetable) {
@@ -67,8 +67,8 @@ class timetable extends Controller
                     'ClassID' => $request->input('classId'),
                     'Subject' => $request->input('subject'),
                     'TeacherID' => $request->input('teacherId'),
-                    'StartingTime' =>  $request->input('startTime'),
-                    'EndingTime' =>  $request->input('endTime'),
+                    'StartingTime' => $request->input('startTime'),
+                    'EndingTime' => $request->input('endTime'),
                     'Day' => $request->input('day'),
                 ]);
                 if ($timetable) {

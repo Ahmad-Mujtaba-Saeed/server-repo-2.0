@@ -33,8 +33,8 @@ class CheckTimeOverLap implements Rule
                 $query->whereBetween('StartingTime', [$this->startTime, $this->endTime])
                       ->orWhereBetween('EndingTime', [$this->startTime, $this->endTime])
                       ->orWhere(function ($query) {
-                          $query->where('StartingTime', '<=', $this->startTime)
-                                ->where('EndingTime', '>=', $this->endTime);
+                        $query->where('StartingTime', '<=', $this->startTime)
+                            ->where('EndingTime', '>=', $this->endTime);
                     });
             })
             ->exists();
