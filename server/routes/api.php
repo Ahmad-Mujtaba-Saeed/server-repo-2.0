@@ -77,7 +77,6 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::get('/TeacherPayPaid', 'TeacherPayPaid');
         });
         Route::controller(timetable::class)->group(function () {
-            Route::get('/','');
             Route::post('/CreateTimeTable', 'create');
         });
         Route::get('/user', [AuthController::class, 'User']);

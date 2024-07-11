@@ -26,56 +26,54 @@ class timetable extends Controller
      */
     public function create(Request $request)
     {
-        $validator = Validator::make($request->all(),[
-            'ClassID' => $request->input('classId'),
-            'Subject' => $request->input('subject'),
-            'TeacherID' => $request->input('teacherId'),
-            'StartingTime' => (int)$request->input('startTime'),
-            'EndingTime' => (int) $request->input('endTime'),
-            'Day' => $request->input('day'),
+        $validator = Validator::make($request->all(), [
+            'classId' => 'required|integer|exists:classes,id',
+            'subject' => 'required|string|max:255',
+            'teacherId' => 'required|integer|exists:teachers,id',
+            'startTime' => 'required|date_format:H:i',
+            'endTime' => 'required|date_format:H:i|after:startTime',
+            'day' => 'required|string|max:255',
         ]);
-        if($validator->fails()){
-            return Response()->json(['success'=> false , 'message'=> $validator->errors()]);
+        if ($validator->fails()) {
+            return Response()->json(['success' => false, 'message' => $validator->errors()]);
         }
         $user = $request->user();
         $ID = $user->id;
-        if($user->role == 'Admin' ){
+        if ($user->role == 'Admin') {
             $timetable = \App\Models\timetable::create([
                 'ClassID' => $request->input('classId'),
                 'Subject' => $request->input('subject'),
                 'TeacherID' => $request->input('teacherId'),
-                'StartingTime' => (int)$request->input('startTime'),
-                'EndingTime' => (int) $request->input('endTime'),
+                'StartingTime' => $request->input('startTime'),
+                'EndingTime' =>  $request->input('endTime'),
                 'Day' => $request->input('day'),
             ]);
-            if($timetable){
-                return Response()->json(['success'=> false , 'message'=> 'Successfully Created time table']);
-            }else{
-                return Response()->json(['success'=> false , 'message'=> 'Failed to create time table']);
+            if ($timetable) {
+                return Response()->json(['success' => false, 'message' => 'Successfully Created time table']);
+            } else {
+                return Response()->json(['success' => false, 'message' => 'Failed to create time table']);
             }
-        }
-        else if($user->role == 'Teacher'){
-            $teacher = teachers::with('classes')->where('TeacherUserID',$ID)->first();
-            if($teacher->classes->id == $request->ClassID){
+        } else if ($user->role == 'Teacher') {
+            $teacher = teachers::with('classes')->where('TeacherUserID', $ID)->first();
+            if ($teacher->classes->id == $request->ClassID) {
                 $timetable = \App\Models\timetable::create([
                     'ClassID' => $request->input('classId'),
                     'Subject' => $request->input('subject'),
                     'TeacherID' => $request->input('teacherId'),
-                    'StartingTime' => (int)$request->input('startTime'),
-                    'EndingTime' => (int) $request->input('endTime'),
+                    'StartingTime' =>  $request->input('startTime'),
+                    'EndingTime' =>  $request->input('endTime'),
                     'Day' => $request->input('day'),
                 ]);
-                if($timetable){
-                    return Response()->json(['success'=> false , 'message'=> 'Successfully Created time table']);
-                }else{
-                    return Response()->json(['success'=> false , 'message'=> 'Failed to create time table']);
+                if ($timetable) {
+                    return Response()->json(['success' => false, 'message' => 'Successfully Created time table']);
+                } else {
+                    return Response()->json(['success' => false, 'message' => 'Failed to create time table']);
                 }
+            } else {
+                return Response()->json(['success' => false, 'message' => 'Teacher can only create time table of its own class']);
             }
-            else{
-                return Response()->json(['success'=> false , 'message'=> 'Teacher can only create time table of its own class']);
-            }
-        }else{
-            return Response()->json(['success'=> false , 'message'=> 'Only admin can create time table']);
+        } else {
+            return Response()->json(['success' => false, 'message' => 'Only admin can create time table']);
         }
     }
 
