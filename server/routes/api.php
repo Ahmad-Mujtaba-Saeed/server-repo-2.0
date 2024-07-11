@@ -43,7 +43,7 @@ Route::middleware(['check.api.token'])->group(function () {
 
         Route::controller(teacher::class)->group(function () {
             Route::post('/CreateTeacher', 'CreateTeacher');
-            Route::get('/GetTeacher', 'GetTeacher');
+            Route::post('/GetTeacher', 'GetTeacher');
             Route::get('/GetTeacherData', 'GetTeacherData');
             Route::post('/UpdateTeacher', 'UpdateTeacher');
             Route::post('/DeleteTeacher', 'Delete');

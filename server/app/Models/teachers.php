@@ -38,4 +38,8 @@ class teachers extends Model
     {
         return $this->hasMany(classes::class, 'ClassTeacherID');
     }
+    public function subjects()
+    {
+        return $this->hasOne(subjects::class, 'UsersID','TeacherUserID');
+    }
 }
