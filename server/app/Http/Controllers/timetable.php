@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\teachers;
+use App\Rules\CheckTimeOverLap;
 use Illuminate\Http\Request;
 use Response;
 use Validator;
@@ -31,7 +32,12 @@ class timetable extends Controller
             'subject' => 'required|string|max:255',
             'teacherId' => 'required|integer|exists:teachers,id',
             'startTime' => 'required|date_format:H:i:s',
-            'endTime' => 'required|date_format:H:i:s|after:startTime',
+            'endTime' => [
+                'required',
+                'date_format:H:i:s',
+                'after:startTime',
+                new CheckTimeOverLap($request->input('teacherId'), $request->input('startTime')),
+            ],
             'day' => 'required|string|max:255',
         ]);
         if ($validator->fails()) {
@@ -49,7 +55,7 @@ class timetable extends Controller
                 'Day' => $request->input('day'),
             ]);
             if ($timetable) {
-                return Response()->json(['success' => false, 'message' => 'Successfully Created time table']);
+                return Response()->json(['success' => true, 'message' => 'Successfully Created time table']);
             } else {
                 return Response()->json(['success' => false, 'message' => 'Failed to create time table']);
             }
@@ -65,7 +71,7 @@ class timetable extends Controller
                     'Day' => $request->input('day'),
                 ]);
                 if ($timetable) {
-                    return Response()->json(['success' => false, 'message' => 'Successfully Created time table']);
+                    return Response()->json(['success' => true, 'message' => 'Successfully Created time table']);
                 } else {
                     return Response()->json(['success' => false, 'message' => 'Failed to create time table']);
                 }
