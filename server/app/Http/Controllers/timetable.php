@@ -40,7 +40,14 @@ class timetable extends Controller
         $user = $request->user();
         $ID = $user->id;
         if($user->role == 'Admin' ){
-            $timetable = \App\Models\timetable::create($validator->validated());
+            $timetable = \App\Models\timetable::create([
+                'ClassID' => $request->input('classId'),
+                'Subject' => $request->input('subject'),
+                'TeacherID' => $request->input('teacherId'),
+                'StartingTime' => (int)$request->input('startTime'),
+                'EndingTime' => (int) $request->input('endTime'),
+                'Day' => $request->input('day'),
+            ]);
             if($timetable){
                 return Response()->json(['success'=> false , 'message'=> 'Successfully Created time table']);
             }else{
@@ -50,7 +57,14 @@ class timetable extends Controller
         else if($user->role == 'Teacher'){
             $teacher = teachers::with('classes')->where('TeacherUserID',$ID)->first();
             if($teacher->classes->id == $request->ClassID){
-                $timetable = \App\Models\timetable::create($validator->validated());
+                $timetable = \App\Models\timetable::create([
+                    'ClassID' => $request->input('classId'),
+                    'Subject' => $request->input('subject'),
+                    'TeacherID' => $request->input('teacherId'),
+                    'StartingTime' => (int)$request->input('startTime'),
+                    'EndingTime' => (int) $request->input('endTime'),
+                    'Day' => $request->input('day'),
+                ]);
                 if($timetable){
                     return Response()->json(['success'=> false , 'message'=> 'Successfully Created time table']);
                 }else{
