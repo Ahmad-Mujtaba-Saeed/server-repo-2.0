@@ -121,4 +121,18 @@ class PriceController extends Controller
         }
 
     }
+
+    public function GeneratedFee(Request $request){
+        $user = $request->user();
+        if($user->role != 'Admin'){
+            return response()->json(['success' => true, 'message' => 'Only admin can see fee information']);
+        }
+        $GeneratedFee = GeneratedFee::all();
+        if($GeneratedFee){
+            return response()->json(['success' => true, 'data' => $GeneratedFee]);
+        }
+        else{
+            return response()->json(['success' => true, 'message' => 'Error Fetching Fee information']);
+        }
+    }
 }

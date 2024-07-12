@@ -34,6 +34,8 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::post('/DeleteTeacher', 'Delete');
             Route::post('/GetTeacherInformation', 'GetTeacherInformation');
             Route::get('/GetTeacherClassinfo', 'GetTeacherClassinfo');
+            Route::post('/teacherattendance', 'teacherattendance');
+            Route::get('/GetTeacherAttendance','GetTeacherAttendance');
         });
         Route::controller(Classess::class)->group(function () {
             Route::post('/CreateClass', 'CreateClass');
@@ -74,6 +76,7 @@ Route::middleware(['check.api.token'])->group(function () {
         Route::controller(PriceController::class)->group(function () {
             Route::get('/GenerateStudentFee', 'GenerateStudentFee');
             Route::post('/GenerateStudentFeePaid', 'GenerateStudentFeePaid');
+            Route::get('/GeneratedFee','GeneratedFee');
             Route::get('/TeacherPayPaid', 'TeacherPayPaid');
         });
         Route::controller(timetable::class)->group(function () {

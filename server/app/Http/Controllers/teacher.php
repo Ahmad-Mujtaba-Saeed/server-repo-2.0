@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\attendance;
 use App\Models\classes;
 use App\Models\images;
 use App\Models\students;
@@ -315,6 +316,28 @@ public function UpdateTeacher(Request $request)
 
     return response()->json(['success' => false, 'message' => "Sorry! Something went wrong. Please try again later."]);
 }
+
+
+
+public function teacherattendance(Request $request){
+    $user = $request->user();
+    if($user->role == 'Teacher'){
+        $date = date('Y-m-d');
+        $attendance = attendance::updateOrCreate(
+            ['UsersID' => $user->id, 'Date' => $date], // Search criteria
+            ['attendance' => 'Present'] // Update or create data
+        );
+        return response()->json(['success' => false, 'message' => "Present Marked Successfully"]);
+    }else{
+        return response()->json(['success' => false, 'message' => "Only Teacher can mark its attendance"]);
+    }
+}
+
+
+public function GetTeacherAttendance(){
+    
+}
+
 
 
 public function GetTeacherClassinfo(Request $request){
