@@ -54,7 +54,7 @@ class PriceController extends Controller
                     }
                 $totalUnpaidFee = 0;
             }
-            return response()->json(['data' => $studentData]);
+            return response()->json(['data' => $studentData , 'message' => 'Successfully Generated Fee Challan']);
         }
     }
     public function GenerateStudentFeePaid(Request $request){
@@ -128,6 +128,22 @@ class PriceController extends Controller
             return response()->json(['success' => true, 'message' => 'Only admin can see fee information']);
         }
         $GeneratedFee = GeneratedFee::all();
+        if($GeneratedFee){
+            return response()->json(['success' => true, 'data' => $GeneratedFee]);
+        }
+        else{
+            return response()->json(['success' => true, 'message' => 'Error Fetching Fee information']);
+        }
+    }
+
+    public function StudentGeneratedFee(Request $request){
+        $user = $request->user();
+        if($user->role != 'Admin'){
+            return response()->json(['success' => true, 'message' => 'Only admin can see fee information']);
+        }
+        $ID = $request->query('ID');
+        
+        $GeneratedFee = GeneratedFee::where('UsersID', $ID)->get();
         if($GeneratedFee){
             return response()->json(['success' => true, 'data' => $GeneratedFee]);
         }
