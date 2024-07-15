@@ -16,66 +16,66 @@ class PriceController extends Controller
         $user = $request->user();
         if ($user->role == 'Admin') {
             $studentData = students::select('id', 'StudentMonthlyFee', 'StudentUserID')
-            ->with('parents')
-            ->get();
+                ->with('parents')
+                ->get();
             $date = date('Y-m-d');
             $totalUnpaidFee = 0;
             foreach ($studentData as $student) {
                 $existingFees = GeneratedFee::where('UsersID', $student['StudentUserID'])
                     ->where('Paid', false)
                     ->get();
-                    $GeneratedFee =  GeneratedFee::create([
-                        'UsersID' => $student['StudentUserID'],
-                        'Fee' => $student['StudentMonthlyFee'],
-                        'Paid' => false,
-                        'Date' => $date,
-                        'Role' => 'Student'
-                    ]);
-                    if ($existingFees) {
-                        foreach ($existingFees as $fee) {
-                            $totalUnpaidFee += $fee->Fee;
-                        }
-                        $details = [
-                            'Subject' => 'Please Pay Unpaid Amount',
-                            'title' => 'Unpaid Student Fee',
-                            'body' => 'Please Clear your Child Remaining Fee As soon as Possible to avoid any problems.',
-                            'Fee' => $totalUnpaidFee +  $student['StudentMonthlyFee']
-                        ];
-                        Mail::to($student->parents->GuardiansEmail)->send(new \App\Mail\GeneratedFee($details));
+                $GeneratedFee = GeneratedFee::create([
+                    'UsersID' => $student['StudentUserID'],
+                    'Fee' => $student['StudentMonthlyFee'],
+                    'Paid' => false,
+                    'Date' => $date,
+                    'Role' => 'Student'
+                ]);
+                if ($existingFees) {
+                    foreach ($existingFees as $fee) {
+                        $totalUnpaidFee += $fee->Fee;
                     }
-                    else{
-                        $details = [
-                            'Subject' => 'New Challan Generated',
-                            'title' => 'Student New Challan Generated',
-                            'body' => 'Please Pay your Children Fee  As soon as Possible to avoid any problems.',
-                            'Fee' => $student['StudentMonthlyFee']
-                        ];
-                        Mail::to($student->parents->GuardiansEmail)->send(new \App\Mail\GeneratedFee($details));
-                    }
+                    $details = [
+                        'Subject' => 'Please Pay Unpaid Amount',
+                        'title' => 'Unpaid Student Fee',
+                        'body' => 'Please Clear your Child Remaining Fee As soon as Possible to avoid any problems.',
+                        'Fee' => $totalUnpaidFee + $student['StudentMonthlyFee']
+                    ];
+                    Mail::to($student->parents->GuardiansEmail)->send(new \App\Mail\GeneratedFee($details));
+                } else {
+                    $details = [
+                        'Subject' => 'New Challan Generated',
+                        'title' => 'Student New Challan Generated',
+                        'body' => 'Please Pay your Children Fee  As soon as Possible to avoid any problems.',
+                        'Fee' => $student['StudentMonthlyFee']
+                    ];
+                    Mail::to($student->parents->GuardiansEmail)->send(new \App\Mail\GeneratedFee($details));
+                }
                 $totalUnpaidFee = 0;
             }
-            return response()->json(['data' => $studentData , 'message' => 'Successfully Generated Fee Challan']);
+            return response()->json(['data' => $studentData, 'message' => 'Successfully Generated Fee Challan']);
         }
     }
-    public function GenerateStudentFeePaid(Request $request){
+    public function GenerateStudentFeePaid(Request $request)
+    {
         $ID = $request->input('ID');
         $Date = $request->input('Date');
         $user = $request->user();
-    
+
         if ($user->role != 'Admin') {
             return response()->json(['success' => false, 'message' => 'Only admin can access this route']);
         }
         $GeneratedFee = GeneratedFee::where('Date', $Date)->where('UsersID', $ID)->first();
-    
+
         if ($GeneratedFee) {
             $GeneratedFee->Paid = true;
             $GeneratedFee->save();
-    
+
             $student = students::select('id')
                 ->with('parents')
                 ->where('StudentUserID', $ID)
                 ->first();
-    
+
             if ($student && $student->parents) {
                 $details = [
                     'Subject' => 'Fee Successfully Paid',
@@ -85,29 +85,41 @@ class PriceController extends Controller
                 ];
                 Mail::to($student->parents->GuardiansEmail)->send(new \App\Mail\GeneratedFee($details));
             }
-    
-            return response()->json(['success' => true, 'message' => 'Fee Successfully Paid']);
+            $GeneratedFee = GeneratedFee::with('users:id,email,name')->where('UsersID', $ID)->get();
+            $totalPaidAmount = 0;
+            $totalUnPaidAmount = 0;
+            
+            foreach ($GeneratedFee as $fee) {
+                if ($fee->Paid) {
+                    $totalPaidAmount += $fee->Fee;
+                }
+                else{
+                    $totalUnPaidAmount += $fee->Fee;
+                }
+            }
+            return response()->json(['success' => true, 'data' => $GeneratedFee, 'message' => 'Fee Successfully Paid', 'totalPaidAmount' => $totalPaidAmount ,'totalUnPaidAmount' => $totalUnPaidAmount]);
         } else {
             return response()->json(['success' => false, 'message' => 'Generated fee record not found']);
         }
     }
-    public function TeacherPayPaid(Request $request){
-        $ID = $request->query('ID');
+    public function TeacherPayPaid(Request $request)
+    {
         $user = $request->user();
-    
         if ($user->role != 'Admin') {
             return response()->json(['success' => false, 'message' => 'Only admin can access this route']);
         }
+        if($request->query('ID')){
+        $ID = $request->query('ID');
         $date = date('Y-m-d');
         $teacher = teachers::with('users')->where('TeacherUserID', $ID)->first();
-        $GeneratedFee =  GeneratedFee::create([
+        $GeneratedFee = GeneratedFee::create([
             'UsersID' => $teacher['TeacherUserID'],
             'Fee' => $teacher['TeacherSalary'],
             'Paid' => true,
             'Date' => $date,
             'Role' => 'Teacher'
         ]);
-        if($GeneratedFee){
+        if ($GeneratedFee) {
             $details = [
                 'Subject' => 'Teacher Pay Paid Successfully',
                 'title' => 'Teacher Pay Paid Successfully',
@@ -116,37 +128,70 @@ class PriceController extends Controller
             ];
             Mail::to($teacher->users->email)->send(new \App\Mail\GeneratedFee($details));
             return response()->json(['success' => true, 'message' => 'Pay Paid Successfully']);
-        }else{
+        } else {
             return response()->json(['success' => true, 'message' => 'Failed to Pay Paid']);
         }
-
+    }else{
+        $date = date('Y-m-d');
+        $teachers = teachers::with('users')->get();
+        foreach($teachers as $teacher){
+        $GeneratedFee = GeneratedFee::create([
+            'UsersID' => $teacher['TeacherUserID'],
+            'Fee' => $teacher['TeacherSalary'],
+            'Paid' => true,
+            'Date' => $date,
+            'Role' => 'Teacher'
+        ]);
+        if ($GeneratedFee) {
+            $details = [
+                'Subject' => 'Teacher Pay Paid Successfully',
+                'title' => 'Teacher Pay Paid Successfully',
+                'body' => "Teacher has been paid for this month : {$GeneratedFee->Date}",
+                'Fee' => $GeneratedFee->Fee
+            ];
+            Mail::to($teacher->users->email)->send(new \App\Mail\GeneratedFee($details));
+        }
+        }
+        return response()->json(['success' => true, 'message' => 'All Teachers Pay Paid Successfully']);
+    }
     }
 
-    public function GeneratedFee(Request $request){
+    public function GeneratedFee(Request $request)
+    {
         $user = $request->user();
-        if($user->role != 'Admin'){
+        if ($user->role != 'Admin') {
             return response()->json(['success' => true, 'message' => 'Only admin can see fee information']);
         }
         $GeneratedFee = GeneratedFee::all();
-        if($GeneratedFee){
+        if ($GeneratedFee) {
             return response()->json(['success' => true, 'data' => $GeneratedFee]);
-        }
-        else{
+        } else {
             return response()->json(['success' => true, 'message' => 'Error Fetching Fee information']);
         }
     }
 
-    public function StudentGeneratedFee(Request $request){
+    public function StudentGeneratedFee(Request $request)
+    {
         $user = $request->user();
-        if($user->role != 'Admin'){
+        if ($user->role != 'Admin') {
             return response()->json(['success' => true, 'message' => 'Only admin can see fee information']);
         }
         $ID = $request->query('ID');
         $GeneratedFee = GeneratedFee::with('users:id,email,name')->where('UsersID', $ID)->get();
-        if($GeneratedFee){
-            return response()->json(['success' => true, 'data' => $GeneratedFee ]);
+        $totalPaidAmount = 0;
+        $totalUnPaidAmount = 0;
+
+        foreach ($GeneratedFee as $fee) {
+            if ($fee->Paid) {
+                $totalPaidAmount += $fee->Fee;
+            }
+            else{
+                $totalUnPaidAmount += $fee->Fee;
+            }
         }
-        else{
+        if ($GeneratedFee) {
+            return response()->json(['success' => true, 'data' => $GeneratedFee , 'totalPaidAmount' => $totalPaidAmount ,'totalUnPaidAmount' => $totalUnPaidAmount]);
+        } else {
             return response()->json(['success' => true, 'message' => 'Error Fetching Fee information']);
         }
     }
