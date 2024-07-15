@@ -361,8 +361,7 @@ class VideoUploader extends Controller
     
         $fileSize = Storage::disk('public')->size($uploadedVideo->VideoName);
         $stream = Storage::disk('public')->readStream($uploadedVideo->VideoName);
-    
-        // Check if Range header is present
+        
         $rangeHeader = $request->header('Range');
         if ($rangeHeader) {
             // Parse range header (e.g., "bytes=0-100")

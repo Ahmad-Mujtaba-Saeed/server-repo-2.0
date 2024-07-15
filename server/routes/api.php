@@ -76,7 +76,7 @@ Route::middleware(['check.api.token'])->group(function () {
         Route::controller(PriceController::class)->group(function () {
             Route::get('/GenerateStudentFee', 'GenerateStudentFee');
             Route::post('/GenerateStudentFeePaid', 'GenerateStudentFeePaid');
-            Route::get('/GeneratedFee','GeneratedFee');
+            Route::get('/GeneratedPaidFee','GeneratedPaidFee');
             Route::get('/StudentGeneratedFee','StudentGeneratedFee');
             Route::get('/TeacherPayPaid', 'TeacherPayPaid');
         });

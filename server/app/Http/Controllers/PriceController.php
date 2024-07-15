@@ -156,13 +156,14 @@ class PriceController extends Controller
     }
     }
 
-    public function GeneratedFee(Request $request)
+    public function GeneratedPaidFee(Request $request)
     {
         $user = $request->user();
         if ($user->role != 'Admin') {
             return response()->json(['success' => true, 'message' => 'Only admin can see fee information']);
         }
-        $GeneratedFee = GeneratedFee::all();
+        $currentYear = Carbon::now()->year;
+        $GeneratedFee = GeneratedFee::where('Paid',true)->where('Role','Student')->whereYear('Date', $currentYear)->get();
         if ($GeneratedFee) {
             return response()->json(['success' => true, 'data' => $GeneratedFee]);
         } else {
