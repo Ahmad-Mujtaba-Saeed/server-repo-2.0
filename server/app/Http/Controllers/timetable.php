@@ -142,9 +142,22 @@ class timetable extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request)
     {
-        //
+        $user = $request->user();
+        if($user->role != 'Admin'){
+            return response()->json(['success' => false, 'message' => 'Only admin can add expensive']);
+        }
+        if($request->query('ID')){
+            $ClassID =$request->query('ID');
+            $timetable = \App\Models\timetable::where('ClassID',$ClassID)->select('id','Subject','StartingTime','EndingTime','Day','TeacherID')->get();
+            if($timetable){
+                return response()->json(['success'=> true , 'data' => $timetable]);
+            }
+            else{
+                return response()->json(['success'=> false , 'message' => 'Failed to get timetable']);
+            }
+        }
     }
 
     /**

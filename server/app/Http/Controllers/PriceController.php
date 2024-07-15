@@ -259,8 +259,8 @@ class PriceController extends Controller
     
     // Initialize an array to hold combined results
     $combinedResults = [];
-    
-    // Merge results by month
+
+    // Merge TeacherPay results
     foreach ($TeacherPay as $teacher) {
         $monthNumber = $teacher->month_number;
         $monthName = $teacher->month_name;
@@ -278,6 +278,7 @@ class PriceController extends Controller
         }
     }
     
+    // Merge expenses results
     foreach ($expensives as $expense) {
         $monthNumber = $expense->month_number;
         $totalAmount = $expense->total_amount;
@@ -294,15 +295,29 @@ class PriceController extends Controller
         }
     }
     
+    // Calculate total_expensive combining total_fee and total_amount
+    foreach ($combinedResults as &$result) {
+        $result['total_expensive'] = $result['total_fee'] + $result['total_amount'];
+    }
+    
+    // Reset the reference to avoid accidental modification elsewhere
+    unset($result);
+    
+    // Now $combinedResults contains the combined data with total_expensive added
+    // Pass $combinedResults to your view for display
+    
+    
     // Convert combinedResults to a simple array for easier manipulation in the frontend
     $combinedResults = array_values($combinedResults);
 
-        $YearlyTotalFee = 0;
-        foreach($TeacherPay as $Fee){
-            $YearlyTotalFee += $Fee->total_fee ;
-        } 
+    $TotalExpensive = 0;
+
+    foreach ($combinedResults as $Fee) {
+        $TotalExpensive += $Fee['total_expensive'];
+    }
+    
         if ($TeacherPay) {
-            return response()->json(['success' => true, 'data' => $TeacherPay ,'YearlyTotalFee' => number_format($YearlyTotalFee) , 'combinedResults' => $combinedResults]);
+            return response()->json(['success' => true , 'TotalExpensive' => number_format($TotalExpensive) ,'combinedResults' => $combinedResults]);
         } else {
             return response()->json(['success' => true, 'message' => 'Error Fetching Fee information']);
         }

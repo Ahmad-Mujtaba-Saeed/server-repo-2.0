@@ -84,6 +84,7 @@ Route::middleware(['check.api.token'])->group(function () {
         });
         Route::controller(timetable::class)->group(function () {
             Route::post('/CreateTimeTable', 'create');
+            Route::get('/GetTimeTable','show');
         });
         Route::get('/user', [AuthController::class, 'User']);
     });
