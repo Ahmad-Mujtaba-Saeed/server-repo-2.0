@@ -1,48 +1,38 @@
 <?php
-
 namespace App\Rules;
 
-use App\Models\timetable;
 use Illuminate\Contracts\Validation\Rule;
+use App\Models\Timetable;
 
 class CheckClassTimeOverLap implements Rule
 {
-    /**
-     * Create a new rule instance.
-     *
-     * @return void
-     */
-    protected $ClassId;
+    protected $classId;
     protected $startTime;
     protected $endTime;
-    protected $day;
 
-    public function __construct($ClassId, $startTime , $day)
+    public function __construct($classId, $startTime, $endTime)
     {
-        $this->ClassId = $ClassId;
+        $this->classId = $classId;
         $this->startTime = $startTime;
-        $this->day = $day;
+        $this->endTime = $endTime;
     }
+
     public function passes($attribute, $value)
     {
-        $this->endTime = $value;
-        \DB::enableQueryLog();
-        return !timetable::where('ClassID', $this->ClassId)
-        ->where('Day', $this->day) // Assuming $this->day is a string like 'Monday'
-        ->where(function ($query) {
-            $query->whereBetween('StartingTime', [$this->startTime, $this->endTime])
-                  ->orWhereBetween('EndingTime', [$this->startTime, $this->endTime])
-                  ->orWhere(function ($query) {
-                      $query->where('StartingTime', '<=', $this->startTime)
-                            ->where('EndingTime', '>=', $this->endTime);
-                  });
-        })
-        ->exists();
-        dd(\DB::getQueryLog());
+        return !Timetable::where('class_id', $this->classId)
+            ->where(function ($query) {
+                $query->whereBetween('start_time', [$this->startTime, $this->endTime])
+                    ->orWhereBetween('end_time', [$this->startTime, $this->endTime])
+                    ->orWhere(function ($query) {
+                        $query->where('start_time', '<=', $this->startTime)
+                            ->where('end_time', '>=', $this->endTime);
+                    });
+            })
+            ->exists();
     }
 
     public function message()
     {
-        return 'This time is overlapping according to this Class';
+        return 'The given time range overlaps with an existing time range for the same class.';
     }
 }
