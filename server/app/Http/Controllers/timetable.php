@@ -34,6 +34,7 @@ class timetable extends Controller
             $timetable = \App\Models\timetable::create([
                 'ClassID' => $request->input('classId'),
                 'Subject' => $request->input('subject'),
+                'TeacherID' => null,
                 'StartingTime' => $request->input('startTime'),
                 'EndingTime' => $request->input('endTime'),
                 'Day' => $request->input('day'),
@@ -49,6 +50,7 @@ class timetable extends Controller
                 $timetable = \App\Models\timetable::create([
                     'ClassID' => $request->input('classId'),
                     'Subject' => $request->input('subject'),
+                    'TeacherID' => null,
                     'StartingTime' => $request->input('startTime'),
                     'EndingTime' => $request->input('endTime'),
                     'Day' => $request->input('day'),
