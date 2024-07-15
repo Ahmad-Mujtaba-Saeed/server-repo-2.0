@@ -27,6 +27,10 @@ class timetable extends Controller
      */
     public function create(Request $request)
     {
+        if($request->input('subject') == 'break'){
+            
+        }
+        else{
         $validator = Validator::make($request->all(), [
             'classId' => 'required|integer|exists:classes,id',
             'subject' => 'required|string|max:255',
@@ -40,9 +44,9 @@ class timetable extends Controller
                 new CheckTimeOverLap($request->input('teacherId'), $request->input('startTime'), $request->input('day')),
             ],
         ]);
-
         if ($validator->fails()) {
             return Response()->json(['success' => false, 'message' => $validator->errors()]);
+        }
         }
         $user = $request->user();
         $ID = $user->id;

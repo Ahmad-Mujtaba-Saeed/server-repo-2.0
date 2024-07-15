@@ -8,6 +8,7 @@ use App\Models\teachers;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
 
 class PriceController extends Controller
 {
@@ -163,9 +164,19 @@ class PriceController extends Controller
             return response()->json(['success' => true, 'message' => 'Only admin can see fee information']);
         }
         $currentYear = Carbon::now()->year;
-        $GeneratedFee = GeneratedFee::where('Paid',true)->where('Role','Student')->whereYear('Date', $currentYear)->get();
+        $GeneratedFee =  GeneratedFee::where('Paid', true)
+        ->where('Role', 'Student')
+        ->whereYear(DB::raw('"Date"'), $currentYear)
+        ->selectRaw('TO_CHAR("Date", \'Month\') as month_name, EXTRACT(MONTH FROM "Date") as month_number, SUM("Fee"::numeric) as total_fee')
+        ->groupBy('month_name', 'month_number')
+        ->orderBy('month_number')
+        ->get();
+        $YearlyTotalFee = 0;
+        foreach($GeneratedFee as $Fee){
+            $YearlyTotalFee += $Fee->total_fee ;
+        }
         if ($GeneratedFee) {
-            return response()->json(['success' => true, 'data' => $GeneratedFee]);
+            return response()->json(['success' => true, 'data' => $GeneratedFee ,'YearlyTotalFee' => number_format($YearlyTotalFee)]);
         } else {
             return response()->json(['success' => true, 'message' => 'Error Fetching Fee information']);
         }
@@ -191,7 +202,7 @@ class PriceController extends Controller
             }
         }
         if ($GeneratedFee) {
-            return response()->json(['success' => true, 'data' => $GeneratedFee , 'totalPaidAmount' => $totalPaidAmount ,'totalUnPaidAmount' => $totalUnPaidAmount]);
+            return response()->json(['success' => true, 'data' => $GeneratedFee , 'totalPaidAmount' => number_format($totalPaidAmount) ,'totalUnPaidAmount' => number_format($totalUnPaidAmount)]);
         } else {
             return response()->json(['success' => true, 'message' => 'Error Fetching Fee information']);
         }
