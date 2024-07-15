@@ -79,6 +79,8 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::get('/GeneratedPaidFee','GeneratedPaidFee');
             Route::get('/StudentGeneratedFee','StudentGeneratedFee');
             Route::get('/TeacherPayPaid', 'TeacherPayPaid');
+            Route::post('/Addexpensives', 'Addexpensives');
+            Route::get('/TotalExpensives', 'TotalExpensives');
         });
         Route::controller(timetable::class)->group(function () {
             Route::post('/CreateTimeTable', 'create');

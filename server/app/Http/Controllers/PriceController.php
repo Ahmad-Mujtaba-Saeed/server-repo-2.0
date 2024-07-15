@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\expensives;
 use App\Models\GeneratedFee;
 use App\Models\students;
 use App\Models\teachers;
@@ -9,6 +10,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
+use Validator;
 
 class PriceController extends Controller
 {
@@ -203,6 +205,104 @@ class PriceController extends Controller
         }
         if ($GeneratedFee) {
             return response()->json(['success' => true, 'data' => $GeneratedFee , 'totalPaidAmount' => number_format($totalPaidAmount) ,'totalUnPaidAmount' => number_format($totalUnPaidAmount)]);
+        } else {
+            return response()->json(['success' => true, 'message' => 'Error Fetching Fee information']);
+        }
+    }
+    public function Addexpensives(Request $request){
+        $validator = Validator::make($request->all(),[
+            'heading' => 'required|max:400',
+            'amount' => 'required|integer',
+            'description' => 'required|max:1000'
+        ]);
+        if($validator->fails()){
+            return response()->json(['success' => false, 'message' => $validator->errors()]);
+        }
+        $user = $request->user();
+        if($user->role != 'Admin'){
+            return response()->json(['success' => false, 'message' => 'Only admin can add expensive']);
+        }
+        $expensives = expensives::create([
+            'heading' => $request->input('heading'),
+            'amount' => $request->input('amount'),
+            'description' => $request->input('description'),
+            'Date' => date('Y-m-d')
+        ]);
+        if($expensives){
+            return response()->json(['success' => true, 'message' => 'Expensive added successfully']);
+        }
+        else{
+            return response()->json(['success' => false, 'message' => 'Failed to add expensives']);
+        }
+    }
+    public function TotalExpensives(Request $request)
+    {
+        $user = $request->user();
+        if($user->role != 'Admin'){
+            return response()->json(['success' => false, 'message' => 'Only admin can add expensive']);
+        }
+        $currentYear = Carbon::now()->year;
+        $TeacherPay = GeneratedFee::where('Paid', true)
+        ->where('Role', 'Teacher')
+        ->whereYear(DB::raw('"Date"'), $currentYear)
+        ->selectRaw('TO_CHAR("Date", \'Month\') as month_name, EXTRACT(MONTH FROM "Date") as month_number, SUM("Fee"::numeric) as total_fee')
+        ->groupBy('month_name', 'month_number')
+        ->orderBy('month_number')
+        ->get();
+    
+    // Fetch expenses
+    $expensives = expensives::whereYear(DB::raw('"Date"'), $currentYear)
+        ->selectRaw('TO_CHAR("Date", \'Month\') as month_name, EXTRACT(MONTH FROM "Date") as month_number, SUM("amount"::numeric) as total_amount')
+        ->groupBy('month_name', 'month_number')
+        ->orderBy('month_number')
+        ->get();
+    
+    // Initialize an array to hold combined results
+    $combinedResults = [];
+    
+    // Merge results by month
+    foreach ($TeacherPay as $teacher) {
+        $monthNumber = $teacher->month_number;
+        $monthName = $teacher->month_name;
+        $totalFee = $teacher->total_fee;
+    
+        if (!isset($combinedResults[$monthNumber])) {
+            $combinedResults[$monthNumber] = [
+                'month_name' => $monthName,
+                'month_number' => $monthNumber,
+                'total_fee' => $totalFee,
+                'total_amount' => 0,
+            ];
+        } else {
+            $combinedResults[$monthNumber]['total_fee'] += $totalFee;
+        }
+    }
+    
+    foreach ($expensives as $expense) {
+        $monthNumber = $expense->month_number;
+        $totalAmount = $expense->total_amount;
+    
+        if (isset($combinedResults[$monthNumber])) {
+            $combinedResults[$monthNumber]['total_amount'] += $totalAmount;
+        } else {
+            $combinedResults[$monthNumber] = [
+                'month_name' => $expense->month_name,
+                'month_number' => $monthNumber,
+                'total_fee' => 0,
+                'total_amount' => $totalAmount,
+            ];
+        }
+    }
+    
+    // Convert combinedResults to a simple array for easier manipulation in the frontend
+    $combinedResults = array_values($combinedResults);
+
+        $YearlyTotalFee = 0;
+        foreach($TeacherPay as $Fee){
+            $YearlyTotalFee += $Fee->total_fee ;
+        } 
+        if ($TeacherPay) {
+            return response()->json(['success' => true, 'data' => $TeacherPay ,'YearlyTotalFee' => number_format($YearlyTotalFee) , 'combinedResults' => $combinedResults]);
         } else {
             return response()->json(['success' => true, 'message' => 'Error Fetching Fee information']);
         }
