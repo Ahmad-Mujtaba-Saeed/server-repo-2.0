@@ -142,10 +142,9 @@ class PriceController extends Controller
             return response()->json(['success' => true, 'message' => 'Only admin can see fee information']);
         }
         $ID = $request->query('ID');
-        
-        $GeneratedFee = GeneratedFee::where('UsersID', $ID)->get();
+        $GeneratedFee = GeneratedFee::with('users:id,email,name')->where('UsersID', $ID)->get();
         if($GeneratedFee){
-            return response()->json(['success' => true, 'data' => $GeneratedFee]);
+            return response()->json(['success' => true, 'data' => $GeneratedFee ]);
         }
         else{
             return response()->json(['success' => true, 'message' => 'Error Fetching Fee information']);
