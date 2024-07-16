@@ -81,6 +81,7 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::get('/TeacherPayPaid', 'TeacherPayPaid');
             Route::post('/Addexpensives', 'Addexpensives');
             Route::get('/TotalExpensives', 'TotalExpensives');
+            Route::get('/GeneratedChallans', 'GeneratedChallans');
         });
         Route::controller(timetable::class)->group(function () {
             Route::post('/CreateTimeTable', 'create');
