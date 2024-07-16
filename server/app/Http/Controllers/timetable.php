@@ -150,7 +150,7 @@ class timetable extends Controller
         }
         if($request->query('ID')){
             $ClassID =$request->query('ID');
-            $timetableData = timetable::where('ClassID', $ClassID)
+            $timetableData = \App\Models\timetable::where('ClassID', $ClassID)
     ->select('id', 'Subject', 'StartingTime', 'EndingTime', 'Day', 'TeacherID')
     ->get();
 
