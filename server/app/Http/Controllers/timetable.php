@@ -202,8 +202,8 @@ foreach ($groupedTimetable as $timeGroup) {
 
     $formattedTimetable[] = $periodEntry;
 }
-            if($timetable){
-                return response()->json(['success'=> true , 'data' => $timetable]);
+            if($formattedTimetable){
+                return response()->json(['success'=> true , 'data' => $formattedTimetable]);
             }
             else{
                 return response()->json(['success'=> false , 'message' => 'Failed to get timetable']);
