@@ -154,27 +154,56 @@ class timetable extends Controller
     ->select('id', 'Subject', 'StartingTime', 'EndingTime', 'Day', 'TeacherID')
     ->get();
 
-// Step 2: Group by StartingTime and EndingTime
+// Group by StartingTime and EndingTime
 $groupedTimetable = $timetableData->groupBy(function ($item) {
     return $item->StartingTime . '-' . $item->EndingTime; // Group by both times
 });
 
-// Step 3: Format the grouped data
+// Format the grouped data
 $formattedTimetable = [];
 foreach ($groupedTimetable as $timeGroup) {
     // Get the first entry to represent the group
     $firstEntry = $timeGroup->first();
-    
-    $formattedTimetable[] = [
-        'StartingTime' => $firstEntry->StartingTime,
-        'EndingTime' => $firstEntry->EndingTime,
-        'Subjects' => $timeGroup->pluck('Subject')->unique()->toArray(), // Unique subjects
-        'Days' => $timeGroup->pluck('Day')->unique()->toArray(), // Unique days
-        'TeacherIDs' => $timeGroup->pluck('TeacherID')->unique()->toArray() // Unique TeacherIDs
+
+    // Create a period entry
+    $periodEntry = [
+        'period' => [$firstEntry->StartingTime, $firstEntry->EndingTime],
+        'Monday' => '',
+        'Tuesday' => '',
+        'Wednesday' => '',
+        'Thursday' => '',
+        'Friday' => '',
+        'Saturday' => ''
     ];
+
+    // Populate the subjects for each day
+    foreach ($timeGroup as $entry) {
+        switch ($entry->Day) {
+            case 'Monday':
+                $periodEntry['Monday'] = $entry->Subject;
+                break;
+            case 'Tuesday':
+                $periodEntry['Tuesday'] = $entry->Subject;
+                break;
+            case 'Wednesday':
+                $periodEntry['Wednesday'] = $entry->Subject;
+                break;
+            case 'Thursday':
+                $periodEntry['Thursday'] = $entry->Subject;
+                break;
+            case 'Friday':
+                $periodEntry['Friday'] = $entry->Subject;
+                break;
+            case 'Saturday':
+                $periodEntry['Saturday'] = $entry->Subject;
+                break;
+        }
     }
-            if($formattedTimetable){
-                return response()->json(['success'=> true , 'data' => $formattedTimetable]);
+
+    $formattedTimetable[] = $periodEntry;
+}
+            if($timetable){
+                return response()->json(['success'=> true , 'data' => $timetable]);
             }
             else{
                 return response()->json(['success'=> false , 'message' => 'Failed to get timetable']);
