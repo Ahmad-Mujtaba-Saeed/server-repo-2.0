@@ -150,9 +150,31 @@ class timetable extends Controller
         }
         if($request->query('ID')){
             $ClassID =$request->query('ID');
-            $timetable = \App\Models\timetable::where('ClassID',$ClassID)->select('id','Subject','StartingTime','EndingTime','Day','TeacherID')->get();
-            if($timetable){
-                return response()->json(['success'=> true , 'data' => $timetable]);
+            $timetableData = timetable::where('ClassID', $ClassID)
+    ->select('id', 'Subject', 'StartingTime', 'EndingTime', 'Day', 'TeacherID')
+    ->get();
+
+// Step 2: Group by StartingTime and EndingTime
+$groupedTimetable = $timetableData->groupBy(function ($item) {
+    return $item->StartingTime . '-' . $item->EndingTime; // Group by both times
+});
+
+// Step 3: Format the grouped data
+$formattedTimetable = [];
+foreach ($groupedTimetable as $timeGroup) {
+    // Get the first entry to represent the group
+    $firstEntry = $timeGroup->first();
+    
+    $formattedTimetable[] = [
+        'StartingTime' => $firstEntry->StartingTime,
+        'EndingTime' => $firstEntry->EndingTime,
+        'Subjects' => $timeGroup->pluck('Subject')->unique()->toArray(), // Unique subjects
+        'Days' => $timeGroup->pluck('Day')->unique()->toArray(), // Unique days
+        'TeacherIDs' => $timeGroup->pluck('TeacherID')->unique()->toArray() // Unique TeacherIDs
+    ];
+    }
+            if($formattedTimetable){
+                return response()->json(['success'=> true , 'data' => $formattedTimetable]);
             }
             else{
                 return response()->json(['success'=> false , 'message' => 'Failed to get timetable']);
