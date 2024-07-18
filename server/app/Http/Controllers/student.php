@@ -51,13 +51,13 @@ class student extends Controller
         if ($validator->fails()) {
             // Log the errors to debug
             \Log::error($validator->errors());
-            return response()->json(['success' => false, 'message' => $validator->errors() ,'validatormessage' => true]);
+            return ReturnData(false,'',$validator->errors());
         }
 
         $user = $request->user();
 
         if ($user->role !== "Admin") {
-            return response()->json(['success' => false, 'message' => "Only Admin Can Create Student"]);
+            return ReturnData(false,'','Only admin can access this');
         }
 
         DB::beginTransaction();
@@ -182,7 +182,7 @@ class student extends Controller
                 }
             }
 
-            return response()->json(['success' => false, 'message' => "Sorry! Something went wrong. Please try again later." ,'error' => $e->getMessage()]);
+            return ReturnData(false,$e->getMessage(),'Sorry, Something went wrong!');
         }
     }
 
@@ -203,7 +203,7 @@ class student extends Controller
     {
         $user = $request->user();
         if ($user->role !== "Admin") {
-            return response()->json(['success' => false, 'message' => "Only Admin Can Create Student"]);
+            return ReturnData(false,'','Only admin can access this');
         }
         $today = Carbon::today();
         $lastWeek = Carbon::today()->subWeek()->format('Y-m-d');
@@ -244,11 +244,7 @@ class student extends Controller
             'ClassName' => 'required',
         ]);
         if ($validator->fails()) {
-            $response = [
-                'success' => false,
-                'message' => $validator->errors()
-            ];
-            return response()->json($response);
+            return ReturnData(false,'',$validator->errors());
         } else {
             $ClassRank = $request->input('ClassRank');
             $ClassName = $request->input('ClassName');
@@ -265,12 +261,12 @@ class student extends Controller
                             $student->users->images[0]->setAttribute('data', $data);
                         }
                     }
-                    return response()->json(['success' => true, 'data' => $students]);
+                    return ReturnData(true,$students,'');
                 } else {
-                    return response()->json(['success' => false, 'message' => 'Student not found']);
+                    return ReturnData(false,'','Student not found!');
                 }
             } else {
-                return response()->json(['success' => false, 'message' => 'Class not found']);
+                return ReturnData(false,'','Class not found');
             }
         }
     }
@@ -286,11 +282,7 @@ class student extends Controller
             'ClassName' => 'required',
         ]);
         if ($validator->fails()) {
-            $response = [
-                'success' => false,
-                'message' => $validator->errors()
-            ];
-            return response()->json($response);
+            return ReturnData(false,'',$validator->errors());
         } else {
             $ClassRank = $request->input('ClassRank');
             $ClassName = $request->input('ClassName');
@@ -307,12 +299,12 @@ class student extends Controller
                             $student->users->images[0]->setAttribute('data', $data);
                         }
                     }
-                    return response()->json(['success' => true, 'data' => $students]);
+                    return ReturnData(true,$students,'');
                 } else {
-                    return response()->json(['success' => false, 'message' => 'Student not found']);
+                    return ReturnData(false,'','Student not found!');
                 }
             } else {
-                return response()->json(['success' => false, 'message' => 'Class not found']);
+                return ReturnData(false,'','Class not found!');
             }
         }
     }
@@ -322,11 +314,7 @@ class student extends Controller
             'ID' => 'required',
         ]);
         if ($validator->fails()) {
-            $response = [
-                'success' => false,
-                'message' => $validator->errors()
-            ];
-            return response()->json($response);
+            return ReturnData(false,'',$validator->errors());
         } else {
             $user = $request->user();
 

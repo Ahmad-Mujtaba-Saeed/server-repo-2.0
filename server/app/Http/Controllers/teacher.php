@@ -327,15 +327,20 @@ public function teacherattendance(Request $request){
             ['UsersID' => $user->id, 'Date' => $date],
             ['attendance' => 'Present'] // Update or create data
         );
-        return response()->json(['success' => false, 'message' => "Present Marked Successfully"]);
+        return response()->json(['success' => true, 'message' => "Present Marked Successfully"]);
     }else{
         return response()->json(['success' => false, 'message' => "Only Teacher can mark its attendance"]);
     }
 }
 
 
-public function GetTeacherAttendance(){
-    
+public function GetTeacherAttendance(Request $request){
+    $user = $request->user();
+    if($user->role != 'Admin'){
+        return ReturnData(false,'','Only admin can access this');
+    }
+    $date = date('Y-m-d');
+        $attendance = attendance::where();
 }
 
 
