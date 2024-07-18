@@ -39,7 +39,7 @@ class teachers extends Model
     }
     public function classes()
     {
-        return $this->hasMany(classes::class, 'ClassTeacherID');
+        return $this->hasOne(classes::class, 'ClassTeacherID','id');
     }
     public function subjects()
     {
