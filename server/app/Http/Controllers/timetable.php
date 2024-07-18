@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\students;
 use App\Models\teachers;
 use App\Rules\CheckTimeOverLap;
 use Carbon\Carbon;
@@ -154,11 +155,13 @@ class timetable extends Controller
     public function show(Request $request)
     {
         $user = $request->user();
+        $ID = $user->id; 
         if($user->role != 'Admin'){
             return response()->json(['success' => false, 'message' => 'Only admin can add expensive']);
         }
         if($user->role == 'Student'){
-            $ClassID =$request->query('ID');
+            $StudentData = students::with('classes')->where('StudentUserID',$ID)->first();
+            $ClassID = $StudentData->classes->id;
             $date = Carbon::today();
             $dayName = $date->format('l');
             $timetableData = \App\Models\timetable::where('ClassID', $ClassID)->where('Day',$dayName)
@@ -214,7 +217,6 @@ class timetable extends Controller
                         break;
                 }
             }
-        
             $formattedTimetable[] = $periodEntry;
         }
         
