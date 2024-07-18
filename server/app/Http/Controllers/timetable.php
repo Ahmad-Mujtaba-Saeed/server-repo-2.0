@@ -83,7 +83,6 @@ class timetable extends Controller
                 'required',
                 'date_format:H:i:s',
                 'after:startTime',
-                new CheckTimeOverLap($request->input('teacherId'), $request->input('startTime'), $request->input('day')),
             ],
         ]);
         if ($validator->fails()) {
@@ -158,6 +157,17 @@ class timetable extends Controller
         // if($user->role != 'Admin'){
         //     return response()->json(['success' => false, 'message' => 'Only admin can add expensive']);
         // }
+        if($request->query('ID') == 'TImETableforfuckingteacher'){
+            $teacher = teachers::with('classes')->where('TeacherUserID', $ID)->first();
+            $ClassID = $teacher->classes->id;
+            $date = Carbon::today();
+            $dayName = $date->format('l');
+            $timetableData = \App\Models\timetable::where('ClassID', $ClassID)->where('Day',$dayName)
+            ->select('id', 'Subject', 'StartingTime', 'EndingTime','TeacherID')
+            ->get();
+            
+            return ReturnData(true,$timetableData,'');
+        }
         if($user->role == 'Teacher'){
             $teacher = teachers::with('classes')->where('TeacherUserID', $ID)->first();
             if ($teacher->classes->id) {
