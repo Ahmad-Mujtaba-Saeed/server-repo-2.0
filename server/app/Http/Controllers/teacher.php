@@ -334,6 +334,16 @@ public function teacherattendance(Request $request){
     }
 }
 
+public function GetTeacherAttendanceDashboard(Request $request)
+{
+    $user = $request->user();
+    $ID = $user->id;
+    $attendance = attendance::where('UsersID', $ID)->get();
+    $presentCount = $attendance->where('attendance', 'Present')->count();
+    $absentCount = $attendance->where('attendance', 'Absent')->count();
+    return response()->json(['success' => true , 'presentCount' => $presentCount , 'absentCount' => $absentCount , 'attendance' => $attendance]);
+}
+
 
 public function GetTeacherAttendance(Request $request){
     $user = $request->user();
