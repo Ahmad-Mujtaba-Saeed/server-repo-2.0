@@ -33,7 +33,7 @@ class students extends Model
     }
     public function classes()
     {
-        return $this->belongsTo(classes::class, 'StudentClassID');
+        return $this->belongsTo(classes::class, 'StudentClassID' , 'id');
     }
 
     // Define the relationship with the Teacher model

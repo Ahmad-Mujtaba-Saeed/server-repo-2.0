@@ -156,9 +156,9 @@ class timetable extends Controller
     {
         $user = $request->user();
         $ID = $user->id; 
-        if($user->role != 'Admin'){
-            return response()->json(['success' => false, 'message' => 'Only admin can add expensive']);
-        }
+        // if($user->role != 'Admin'){
+        //     return response()->json(['success' => false, 'message' => 'Only admin can add expensive']);
+        // }
         if($user->role == 'Student'){
             $StudentData = students::with('classes')->where('StudentUserID',$ID)->first();
             $ClassID = $StudentData->classes->id;
@@ -227,7 +227,7 @@ class timetable extends Controller
             return response()->json(['success' => false, 'message' => 'Failed to get timetable']);
         }
         }
-        else{
+        else if ($user->role == 'Admin'){
         if($request->query('ID')){
             $ClassID =$request->query('ID');
             $timetableData = \App\Models\timetable::where('ClassID', $ClassID)
@@ -296,6 +296,9 @@ class timetable extends Controller
         }
     }
     } 
+    else{
+        return ReturnData(false,'','Cannot access this');
+    }
 }
 
     /**
