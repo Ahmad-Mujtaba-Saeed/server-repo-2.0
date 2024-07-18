@@ -75,7 +75,7 @@ class timetable extends Controller
         }
         else{
         $validator = Validator::make($request->all(), [
-            'classId' => 'required|integer|exists:classes,id',
+            'classId' => 'integer|exists:classes,id',
             'subject' => 'required|string|max:255',
             'teacherId' => 'required|integer',
             'startTime' => 'required|date_format:H:i:s',
@@ -345,9 +345,9 @@ class timetable extends Controller
      */
     public function destroy(Request $request)
     {
-        $ClassID = $request->query('ID');
         $user = $request->user();
         if($user->role =='Admin'){
+            $ClassID = $request->query('ID');
             $timetable = \App\Models\timetable::where('ClassID',$ClassID)->get();
             foreach($timetable as $Stimetable){
                 $Stimetable->delete();
@@ -357,6 +357,9 @@ class timetable extends Controller
             }else{
                 return response()->json(['success' => true , 'message' => 'Failed to delete Timetable']);
             }
+        }
+        else if($user->role == 'Teacher'){
+            
         }
     }
 }
