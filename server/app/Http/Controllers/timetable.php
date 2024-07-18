@@ -75,7 +75,6 @@ class timetable extends Controller
         }
         else{
         $validator = Validator::make($request->all(), [
-            'classId' => 'integer|exists:classes,id',
             'subject' => 'required|string|max:255',
             'teacherId' => 'required|integer',
             'startTime' => 'required|date_format:H:i:s',
