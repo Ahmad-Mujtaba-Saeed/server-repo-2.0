@@ -31,13 +31,15 @@ class timetable extends Controller
             $user = $request->user();
         $ID = $user->id;
         if ($user->role == 'Admin') {
-            $timetable = \App\Models\timetable::create([
+            $timetable = \App\Models\timetable::updateOrCreate(    [
                 'ClassID' => $request->input('classId'),
-                'Subject' => $request->input('subject'),
-                'TeacherID' => null,
                 'StartingTime' => $request->input('startTime'),
                 'EndingTime' => $request->input('endTime'),
                 'Day' => $request->input('day'),
+            ],
+            [
+                'Subject' => $request->input('subject'),
+                'TeacherID' => null, // Assuming you're passing a teacherId
             ]);
             if ($timetable) {
                 return Response()->json(['success' => true, 'message' => 'Successfully Created time table']);
@@ -47,13 +49,15 @@ class timetable extends Controller
         } else if ($user->role == 'Teacher') {
             $teacher = teachers::with('classes')->where('TeacherUserID', $ID)->first();
             if ($teacher->classes->id == $request->ClassID) {
-                $timetable = \App\Models\timetable::create([
+                $timetable = \App\Models\timetable::updateOrCreate(    [
                     'ClassID' => $request->input('classId'),
-                    'Subject' => $request->input('subject'),
-                    'TeacherID' => null,
                     'StartingTime' => $request->input('startTime'),
                     'EndingTime' => $request->input('endTime'),
                     'Day' => $request->input('day'),
+                ],
+                [
+                    'Subject' => $request->input('subject'),
+                    'TeacherID' => null, // Assuming you're passing a teacherId
                 ]);
                 if ($timetable) {
                     return Response()->json(['success' => true, 'message' => 'Successfully Created time table']);
@@ -88,13 +92,15 @@ class timetable extends Controller
         $user = $request->user();
         $ID = $user->id;
         if ($user->role == 'Admin') {
-            $timetable = \App\Models\timetable::create([
+            $timetable = \App\Models\timetable::updateOrCreate(    [
                 'ClassID' => $request->input('classId'),
-                'Subject' => $request->input('subject'),
-                'TeacherID' => $request->input('teacherId'),
                 'StartingTime' => $request->input('startTime'),
                 'EndingTime' => $request->input('endTime'),
                 'Day' => $request->input('day'),
+            ],
+            [
+                'Subject' => $request->input('subject'),
+                'TeacherID' => $request->input('teacherId'), // Assuming you're passing a teacherId
             ]);
             if ($timetable) {
                 return Response()->json(['success' => true, 'message' => 'Successfully Created time table']);
@@ -104,13 +110,15 @@ class timetable extends Controller
         } else if ($user->role == 'Teacher') {
             $teacher = teachers::with('classes')->where('TeacherUserID', $ID)->first();
             if ($teacher->classes->id == $request->ClassID) {
-                $timetable = \App\Models\timetable::create([
+                $timetable = \App\Models\timetable::updateOrCreate(    [
                     'ClassID' => $request->input('classId'),
-                    'Subject' => $request->input('subject'),
-                    'TeacherID' => $request->input('teacherId'),
                     'StartingTime' => $request->input('startTime'),
                     'EndingTime' => $request->input('endTime'),
                     'Day' => $request->input('day'),
+                ],
+                [
+                    'Subject' => $request->input('subject'),
+                    'TeacherID' => $request->input('teacherId'), // Assuming you're passing a teacherId
                 ]);
                 if ($timetable) {
                     return Response()->json(['success' => true, 'message' => 'Successfully Created time table']);
@@ -175,7 +183,6 @@ class timetable extends Controller
                 'Friday' => ['subject' => '', 'teacher_id' => ''],
                 'Saturday' => ['subject' => '', 'teacher_id' => '']
             ];
-        
             // Populate the subjects and teacher IDs for each day
             foreach ($timeGroup as $entry) {
                 switch ($entry->Day) {
@@ -236,7 +243,7 @@ class timetable extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
         //
     }
@@ -247,8 +254,18 @@ class timetable extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        //
+        $ClassID = $request->query('ID');
+        $user = $request->user();
+        if($user->role =='Admin'){
+            $timetable = \App\Models\timetable::where('ClassID',$ClassID)->get();
+            $timetable->delete();
+            if($timetable){
+                return response()->json(['success' => true , 'message' => 'Successfully Deleted Timetable']);
+            }else{
+                return response()->json(['success' => true , 'message' => 'Failed to delete Timetable']);
+            }
+        }
     }
 }
