@@ -34,7 +34,7 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::post('/DeleteTeacher', 'Delete');
             Route::post('/GetTeacherInformation', 'GetTeacherInformation');
             Route::get('/GetTeacherClassinfo', 'GetTeacherClassinfo');
-            Route::post('/teacherattendance', 'teacherattendance');
+            Route::get('/teacherattendance', 'teacherattendance');
             Route::get('/GetTeacherAttendance','GetTeacherAttendance');
         });
         Route::controller(Classess::class)->group(function () {

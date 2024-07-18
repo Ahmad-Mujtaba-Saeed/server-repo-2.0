@@ -324,7 +324,7 @@ public function teacherattendance(Request $request){
     if($user->role == 'Teacher'){
         $date = date('Y-m-d');
         $attendance = attendance::updateOrCreate(
-            ['UsersID' => $user->id, 'Date' => $date], // Search criteria
+            ['UsersID' => $user->id, 'Date' => $date],
             ['attendance' => 'Present'] // Update or create data
         );
         return response()->json(['success' => false, 'message' => "Present Marked Successfully"]);

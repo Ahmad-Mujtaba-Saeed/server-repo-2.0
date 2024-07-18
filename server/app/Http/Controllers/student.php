@@ -233,8 +233,7 @@ class student extends Controller
                 'absent_count' => $absentCount
             ];
         }
-
-        return response()->json(['success' => true, 'data' => $summary]);
+        return ReturnData(true,$summary,'');
     }
 
     

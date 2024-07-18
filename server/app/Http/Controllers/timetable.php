@@ -260,7 +260,9 @@ class timetable extends Controller
         $user = $request->user();
         if($user->role =='Admin'){
             $timetable = \App\Models\timetable::where('ClassID',$ClassID)->get();
-            $timetable->delete();
+            foreach($timetable as $Stimetable){
+                $Stimetable->delete();
+            }
             if($timetable){
                 return response()->json(['success' => true , 'message' => 'Successfully Deleted Timetable']);
             }else{
