@@ -159,7 +159,77 @@ class timetable extends Controller
         // if($user->role != 'Admin'){
         //     return response()->json(['success' => false, 'message' => 'Only admin can add expensive']);
         // }
-        if($user->role == 'Student'){
+        if($user->role == 'Teacher'){
+            $teacher = teachers::with('classes')->where('TeacherUserID', $ID)->first();
+            if ($teacher->classes->id) {
+            $ClassID = $teacher->classes->id;
+            $timetableData = \App\Models\timetable::where('ClassID', $ClassID)
+            ->select('id', 'Subject', 'StartingTime', 'EndingTime', 'Day', 'TeacherID')
+            ->get();
+        
+        // Group by StartingTime and EndingTime
+        $groupedTimetable = $timetableData->groupBy(function ($item) {
+            return $item->StartingTime . '-' . $item->EndingTime; // Group by both times
+        });
+        
+        // Format the grouped data
+        $formattedTimetable = [];
+        foreach ($groupedTimetable as $timeGroup) {
+            // Get the first entry to represent the group
+            $firstEntry = $timeGroup->first();
+        
+            // Create a period entry
+            $periodEntry = [
+                'period' => [$firstEntry->StartingTime, $firstEntry->EndingTime],
+                'Monday' => ['subject' => '', 'teacher_id' => ''],
+                'Tuesday' => ['subject' => '', 'teacher_id' => ''],
+                'Wednesday' => ['subject' => '', 'teacher_id' => ''],
+                'Thursday' => ['subject' => '', 'teacher_id' => ''],
+                'Friday' => ['subject' => '', 'teacher_id' => ''],
+                'Saturday' => ['subject' => '', 'teacher_id' => '']
+            ];
+            // Populate the subjects and teacher IDs for each day
+            foreach ($timeGroup as $entry) {
+                switch ($entry->Day) {
+                    case 'Monday':
+                        $periodEntry['Monday']['subject'] = $entry->Subject;
+                        $periodEntry['Monday']['teacher_id'] = $entry->TeacherID;
+                        break;
+                    case 'Tuesday':
+                        $periodEntry['Tuesday']['subject'] = $entry->Subject;
+                        $periodEntry['Tuesday']['teacher_id'] = $entry->TeacherID;
+                        break;
+                    case 'Wednesday':
+                        $periodEntry['Wednesday']['subject'] = $entry->Subject;
+                        $periodEntry['Wednesday']['teacher_id'] = $entry->TeacherID;
+                        break;
+                    case 'Thursday':
+                        $periodEntry['Thursday']['subject'] = $entry->Subject;
+                        $periodEntry['Thursday']['teacher_id'] = $entry->TeacherID;
+                        break;
+                    case 'Friday':
+                        $periodEntry['Friday']['subject'] = $entry->Subject;
+                        $periodEntry['Friday']['teacher_id'] = $entry->TeacherID;
+                        break;
+                    case 'Saturday':
+                        $periodEntry['Saturday']['subject'] = $entry->Subject;
+                        $periodEntry['Saturday']['teacher_id'] = $entry->TeacherID;
+                        break;
+                }
+            }
+        
+            $formattedTimetable[] = $periodEntry;
+        }
+        
+        // Return response
+        if ($formattedTimetable) {
+            return response()->json(['success' => true, 'data' => $formattedTimetable]);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Failed to get timetable']);
+        }
+            }
+        }
+        else if($user->role == 'Student'){
             $StudentData = students::with('classes')->where('StudentUserID',$ID)->first();
             $ClassID = $StudentData->classes->id;
             $date = Carbon::today();
