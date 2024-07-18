@@ -82,7 +82,6 @@ class ChatController extends Controller
         } else {
             return response()->json(['success' => false, 'message' => 'Student not found']);
         }
-
         return response()->json(['success' => true, 'data' => $users]);
     }
 }
