@@ -6,6 +6,7 @@ use App\Models\attendance;
 use App\Models\classes;
 use App\Models\images;
 use App\Models\students;
+use Carbon\Carbon;
 use Hamcrest\TypeSafeDiagnosingMatcher;
 use Illuminate\Http\Request;
 use Response;
@@ -339,8 +340,25 @@ public function GetTeacherAttendance(Request $request){
     if($user->role != 'Admin'){
         return ReturnData(false,'','Only admin can access this');
     }
-    $date = date('Y-m-d');
-        $attendance = attendance::where();
+    $date = Carbon::today()->toDateString();
+
+    // Query for attendance records of teachers for today
+    $attendance = Attendance::whereHas('users', function ($query) {
+        $query->where('role', 'Teacher');
+    })->where('Date', $date)->get();
+    
+    // Count present and absent teachers
+    $presentCount = $attendance->where('attendance', 'Present')->count();
+    $absentCount = $attendance->where('attendance', 'Absent')->count();
+
+    $data = [ 'presentCount' => $presentCount,'absentCount' => $absentCount];
+
+    if($attendance){
+    return ReturnData(true,$data,'');
+    }
+    else{
+    return ReturnData(false,'','Cannot get Teacher Attendance');
+    }
 }
 
 
