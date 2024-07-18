@@ -227,6 +227,7 @@ class timetable extends Controller
             return response()->json(['success' => false, 'message' => 'Failed to get timetable']);
         }
         }
+        else{
         if($request->query('ID')){
             $ClassID =$request->query('ID');
             $timetableData = \App\Models\timetable::where('ClassID', $ClassID)
@@ -294,6 +295,7 @@ class timetable extends Controller
             return response()->json(['success' => false, 'message' => 'Failed to get timetable']);
         }
     }
+    } 
 }
 
     /**
