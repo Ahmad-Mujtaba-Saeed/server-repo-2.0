@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 
@@ -195,6 +196,45 @@ class student extends Controller
         $presentCount = $attendance->where('attendance', 'Present')->count();
         $absentCount = $attendance->where('attendance', 'Absent')->count();
         return response()->json(['success' => true , 'presentCount' => $presentCount , 'absentCount' => $absentCount , 'attendance' => $attendance]);
+    }
+
+
+    public function GetStudentWeekAttendance(Request $request)
+    {
+        $user = $request->user();
+        if ($user->role !== "Admin") {
+            return response()->json(['success' => false, 'message' => "Only Admin Can Create Student"]);
+        }
+        $today = Carbon::today();
+        $lastWeek = Carbon::today()->subWeek()->format('Y-m-d');
+
+        // Retrieve attendance records from the last week excluding today
+        $attendance = attendance::whereBetween('Date', [$lastWeek, $today->copy()->subDay()->format('Y-m-d')])->get();
+
+        $groupedAttendance = $attendance->groupBy('Date');
+
+        $summary = [];
+
+        foreach ($groupedAttendance as $date => $records) {
+            $dayName = Carbon::parse($date)->format('l');
+            
+            // Exclude Sundays
+            if ($dayName == 'Sunday') {
+                continue;
+            }
+
+            $presentCount = $records->where('attendance', 'Present')->count();
+            $absentCount = $records->where('attendance', 'Absent')->count();
+
+            $summary[] = [
+                'date' => $date,
+                'day_name' => $dayName,
+                'present_count' => $presentCount,
+                'absent_count' => $absentCount
+            ];
+        }
+
+        return response()->json(['success' => true, 'data' => $summary]);
     }
 
     
