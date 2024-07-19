@@ -158,11 +158,9 @@ class timetable extends Controller
         //     return response()->json(['success' => false, 'message' => 'Only admin can add expensive']);
         // }
         if($request->query('ID') == 'TImETableforfuckingteacher'){
-            $teacher = teachers::with('classes')->where('TeacherUserID', $ID)->first();
-            $ClassID = $teacher->classes->id;
             $date = Carbon::today();
             $dayName = $date->format('l');
-            $timetableData = \App\Models\timetable::with('teacher')->where('ClassID', $ClassID)->where('Day',$dayName)
+            $timetableData = \App\Models\timetable::with('class')->where('TeacherID', $ID)->where('Day',$dayName)
             ->select('id', 'Subject', 'StartingTime', 'EndingTime','TeacherID')
             ->get();
             
