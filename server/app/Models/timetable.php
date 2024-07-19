@@ -27,6 +27,6 @@ class timetable extends Model
     }
     public function teachers()
     {
-        return $this->hasMany(teachers::class, 'TeacherID');
+        return $this->hasOne(teachers::class, 'TeacherID','id');
     }
 }
