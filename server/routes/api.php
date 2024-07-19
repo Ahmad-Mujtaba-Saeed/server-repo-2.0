@@ -24,6 +24,8 @@ use App\Http\Controllers\VideoUploader;
 */
 Route::middleware(['check.api.token'])->group(function () {
 
+    Route::middleware('throttle:60,1')->group(function () {
+        
     Route::middleware('auth:sanctum')->group(function () {
 
         Route::controller(teacher::class)->group(function () {
@@ -92,13 +94,16 @@ Route::middleware(['check.api.token'])->group(function () {
         });
         Route::get('/user', [AuthController::class, 'User']);
     });
+    
+});
 
+    Route::middleware('throttle:15,1')->group(function () {
     Route::controller(AuthController::class)->group(function () {
         Route::post('/login', 'login');
         Route::post('/register', 'register');
         Route::post('/forgotPassword', 'forgotPassword');
     });
-
+    });
     // Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify.email');
 });
 
