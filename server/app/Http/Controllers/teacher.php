@@ -326,7 +326,7 @@ public function teacherattendance(Request $request){
         $date = date('Y-m-d');
         $attendance = attendance::updateOrCreate(
             ['UsersID' => $user->id, 'Date' => $date],
-            ['attendance' => 'Present'] // Update or create data
+            ['attendance' => 'Present'] 
         );
         return response()->json(['success' => true, 'message' => "Present Marked Successfully"]);
     }else{
@@ -359,7 +359,9 @@ public function GetTeacherAttendance(Request $request){
     
     // Count present and absent teachers
     $presentCount = $attendance->where('attendance', 'Present')->count();
-    $absentCount = $attendance->where('attendance', 'Absent')->count();
+    $teachers = teachers::all();
+    $TotalTeachers = $teachers->count();
+    $absentCount = $TotalTeachers - $presentCount; 
 
     $data = [ 'presentCount' => $presentCount,'absentCount' => $absentCount];
 
