@@ -10,6 +10,7 @@ class classes extends Model
     use HasFactory;
 
     protected $fillable = [
+        'id',
         'ClassName',
         'ClassRank',
         'ClassFloor',
@@ -18,8 +19,12 @@ class classes extends Model
     ];
 
     protected $primaryKey = 'id';
+    protected $table = 'classes'; // make sure the table name matches your database
 
-    protected $table = 'classes';
+    public function timetables()
+    {
+        return $this->hasMany(timetable::class, 'ClassID', 'id');
+    }
 
     public function students()
     {

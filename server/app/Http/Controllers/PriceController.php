@@ -166,12 +166,17 @@ class PriceController extends Controller
         }
         $currentYear = Carbon::now()->year;
         $GeneratedFee = GeneratedFee::where('Paid', true)
-            ->where('Role', 'Student')
-            ->whereYear(DB::raw('"Date"'), $currentYear)
-            ->selectRaw('TO_CHAR("Date", \'Month\') as month_name, EXTRACT(MONTH FROM "Date") as month_number, SUM("Fee"::numeric) as total_fee')
-            ->groupBy('month_name', 'month_number')
-            ->orderBy('month_number')
-            ->get();
+        ->where('Role', 'Student')
+        ->whereYear('Date', $currentYear)
+        ->selectRaw('
+            DATE_FORMAT(`Date`, "%M") as month_name, 
+            MONTH(`Date`) as month_number, 
+            SUM(`Fee`) as total_fee
+        ')
+        ->groupBy('month_name', 'month_number')
+        ->orderBy('month_number')
+        ->get();
+    
         $YearlyTotalFee = 0;
         foreach ($GeneratedFee as $Fee) {
             $YearlyTotalFee += $Fee->total_fee;
@@ -192,16 +197,16 @@ class PriceController extends Controller
         }
         $currentYear = Carbon::now()->year;
         $GeneratedFee = GeneratedFee::where('Role', 'Student')
-            ->whereYear(DB::raw('"Date"'), $currentYear)
-            ->selectRaw('
-        TO_CHAR("Date", \'Month\') as month_name, 
-        EXTRACT(MONTH FROM "Date") as month_number, 
-        SUM(CASE WHEN "Paid" = true THEN "Fee"::numeric ELSE 0 END) as paid_fee,
-        SUM(CASE WHEN "Paid" = false THEN "Fee"::numeric ELSE 0 END) as unpaid_fee
-    ')
-            ->groupBy('month_name', 'month_number')
-            ->orderBy('month_number')
-            ->get();
+        ->whereYear('Date', $currentYear)
+        ->selectRaw('
+            DATE_FORMAT(`Date`, "%M") as month_name, 
+            MONTH(`Date`) as month_number, 
+            SUM(CASE WHEN `Paid` = true THEN `Fee` ELSE 0 END) as paid_fee,
+            SUM(CASE WHEN `Paid` = false THEN `Fee` ELSE 0 END) as unpaid_fee
+        ')
+        ->groupBy('month_name', 'month_number')
+        ->orderBy('month_number')
+        ->get();
 
         if ($GeneratedFee) {
             return response()->json(['success' => true, 'data' => $GeneratedFee]);
@@ -267,20 +272,30 @@ class PriceController extends Controller
             return response()->json(['success' => false, 'message' => 'Only admin can add expensive']);
         }
         $currentYear = Carbon::now()->year;
-        $TeacherPay = GeneratedFee::where('Paid', true)
-            ->where('Role', 'Teacher')
-            ->whereYear(DB::raw('"Date"'), $currentYear)
-            ->selectRaw('TO_CHAR("Date", \'Month\') as month_name, EXTRACT(MONTH FROM "Date") as month_number, SUM("Fee"::numeric) as total_fee')
-            ->groupBy('month_name', 'month_number')
-            ->orderBy('month_number')
-            ->get();
+// Fetch Teacher Pay
+$TeacherPay = GeneratedFee::where('Paid', true)
+    ->where('Role', 'Teacher')
+    ->whereYear('Date', $currentYear)
+    ->selectRaw('
+        DATE_FORMAT(`Date`, "%M") as month_name, 
+        MONTH(`Date`) as month_number, 
+        SUM(`Fee`) as total_fee
+    ')
+    ->groupBy('month_name', 'month_number')
+    ->orderBy('month_number')
+    ->get();
 
-        // Fetch expenses
-        $expensives = expensives::whereYear(DB::raw('"Date"'), $currentYear)
-            ->selectRaw('TO_CHAR("Date", \'Month\') as month_name, EXTRACT(MONTH FROM "Date") as month_number, SUM("amount"::numeric) as total_amount')
-            ->groupBy('month_name', 'month_number')
-            ->orderBy('month_number')
-            ->get();
+// Fetch expenses
+$expensives = expensives::whereYear('Date', $currentYear)
+    ->selectRaw('
+        DATE_FORMAT(`Date`, "%M") as month_name, 
+        MONTH(`Date`) as month_number, 
+        SUM(`amount`) as total_amount
+    ')
+    ->groupBy('month_name', 'month_number')
+    ->orderBy('month_number')
+    ->get();
+
 
         // Initialize an array to hold combined results
         $combinedResults = [];
