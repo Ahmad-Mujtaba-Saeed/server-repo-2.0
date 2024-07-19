@@ -25,8 +25,8 @@ class timetable extends Model
     {
         return $this->belongsTo(classes::class, 'ClassID');
     }
-    public function teachers()
+    public function teacher()
     {
-        return $this->hasOne(teachers::class, 'TeacherID','id');
+        return $this->hasOne(teachers::class, 'TeacherID' , 'id');
     }
 }
