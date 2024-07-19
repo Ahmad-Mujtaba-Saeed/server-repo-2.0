@@ -162,7 +162,7 @@ class timetable extends Controller
             $ClassID = $teacher->classes->id;
             $date = Carbon::today();
             $dayName = $date->format('l');
-            $timetableData = \App\Models\timetable::where('ClassID', $ClassID)->where('Day',$dayName)
+            $timetableData = \App\Models\timetable::with('teachers')->where('ClassID', $ClassID)->where('Day',$dayName)
             ->select('id', 'Subject', 'StartingTime', 'EndingTime','TeacherID')
             ->get();
             
