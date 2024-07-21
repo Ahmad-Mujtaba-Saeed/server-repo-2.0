@@ -16,9 +16,9 @@ return new class extends Migration
         Schema::create('announcement', function (Blueprint $table) {
             $table->id();
             $table->string('heading');
-            $table->string('amount');
             $table->longText('description');
-            $table->date('Date');
+            $table->boolean('teacher');
+            $table->boolean('student');
             $table->timestamps();
         });
     }
