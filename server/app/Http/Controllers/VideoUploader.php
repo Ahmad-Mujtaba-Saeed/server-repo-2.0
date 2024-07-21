@@ -214,7 +214,7 @@ class VideoUploader extends Controller
         $request->validate([
             'video' => 'required|file|max:2097152', // 2 GB in kilobytes (1024 * 1024 * 2)
             'VideoTitle' => 'required|string|max:100',
-            'VideoDescription' => 'nullable|string|max:1000',
+            'VideoDescription' => 'nullable|string|max:10000',
             'VideoPlaylistID' => 'nullable|integer',
         ]);
 
