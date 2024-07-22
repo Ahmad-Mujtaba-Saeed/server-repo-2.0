@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\Classess;
 use App\Http\Controllers\PriceController;
@@ -92,6 +93,11 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::get('/GetTimeTable','show');
             Route::get('/destroyTimeTable', 'destroy');
         });
+        Route::controller(AnnouncementController::class)->group(function () {
+            Route::post('/createAnnouncement', 'create');
+            Route::get('/showAnnouncement','show');
+        });
+
         Route::get('/user', [AuthController::class, 'User']);
     });
     
