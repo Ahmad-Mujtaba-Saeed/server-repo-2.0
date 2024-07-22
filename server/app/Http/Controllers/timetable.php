@@ -168,8 +168,8 @@ class timetable extends Controller
         }
         if($user->role == 'Teacher'){
             $teacher = teachers::with('classes')->where('TeacherUserID', $ID)->first();
-            if ($teacher->classes->id) {
-            $ClassID = $teacher->classes->id;
+            if ($teacher->classes[0]->id) {
+            $ClassID = $teacher->classes[0]->id;
             $timetableData = \App\Models\timetable::where('ClassID', $ClassID)
             ->get();
         
