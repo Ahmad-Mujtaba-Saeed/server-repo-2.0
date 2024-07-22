@@ -15,6 +15,13 @@ class AuthController extends Controller
 
     public function User(Request $request) {
         $user = $request->user();
+        $ID = $user->id;
+        $user = users::with('images')->find($ID);
+        if (isset($user->images[0])) {
+            $imgPath = $user->images[0]->ImageName;
+            $data = base64_encode(file_get_contents(public_path($imgPath)));
+            $user->images[0]->setAttribute('data', $data);
+        }
         if ($user) {
             return response()->json(['success' => true, 'data' => $user]);
         } else {

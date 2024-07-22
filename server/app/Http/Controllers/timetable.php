@@ -304,11 +304,8 @@ class timetable extends Controller
                         break;
                 }
             }
-        
             $formattedTimetable[] = $periodEntry;
         }
-        
-        // Return response
         if ($formattedTimetable) {
             return response()->json(['success' => true, 'data' => $formattedTimetable]);
         } else {
