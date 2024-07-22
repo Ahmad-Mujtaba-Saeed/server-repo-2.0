@@ -39,11 +39,17 @@ class AnnouncementController extends Controller
             if($announcement){
                 return ReturnData(true,$announcement,'');
             }
+            else{
+                return ReturnData(true,'','Not Found for student');
+            }
         }
         else if($user->role == 'Teacher'){
             $announcement = announcement::where('teacher',true)->first();
             if($announcement){
                 return ReturnData(true,$announcement,'');
+            }
+            else{
+                return ReturnData(true,'','Not Found for teacher');
             }
         }
     }
