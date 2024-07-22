@@ -171,7 +171,6 @@ class timetable extends Controller
             if ($teacher->classes->id) {
             $ClassID = $teacher->classes->id;
             $timetableData = \App\Models\timetable::where('ClassID', $ClassID)
-            ->select('id', 'Subject', 'StartingTime', 'EndingTime', 'Day', 'TeacherID')
             ->get();
         
         // Group by StartingTime and EndingTime

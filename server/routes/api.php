@@ -3,6 +3,7 @@
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\Classess;
+use App\Http\Controllers\EnvController;
 use App\Http\Controllers\PriceController;
 use App\Http\Controllers\student;
 use App\Http\Controllers\teacher;
@@ -96,9 +97,11 @@ Route::middleware(['check.api.token'])->group(function () {
         Route::controller(AnnouncementController::class)->group(function () {
             Route::post('/createAnnouncement', 'create');
             Route::get('/showAnnouncement','show');
+            Route::get('/showAllAnnouncement','showAll');
+            Route::get('/destroyAnnouncement','destroy');
         });
-
         Route::get('/user', [AuthController::class, 'User']);
+        Route::post('/update-database-name', [EnvController::class, 'updateDatabaseName']);
     });
     
 });

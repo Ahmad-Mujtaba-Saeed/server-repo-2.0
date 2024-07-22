@@ -33,6 +33,41 @@ class AnnouncementController extends Controller
     }
 
     public function show(Request $request){
-        
+        $user = $request->user();
+        if($user->role == 'Student'){
+            $announcement = announcement::where('student',true)->first();
+            if($announcement){
+                return ReturnData(true,$announcement,'');
+            }
+        }
+        else if($user->role == 'Teacher'){
+            $announcement = announcement::where('teacher',true)->first();
+            if($announcement){
+                return ReturnData(true,$announcement,'');
+            }
+        }
+    }
+    public function showAll(Request $request){
+        $announcement = announcement::all();
+        if($announcement){
+            return ReturnData(true,$announcement,'');
+        }
+        else{
+            return ReturnData(true,'','Failed to get announcement');
+        }
+    }
+    public function destroy(Request $request){
+        $user = $request->user();
+        if($user->role == 'admin'){
+            $ID = $request->query('ID');
+            $announcement = announcement::find($ID);
+            $announcement->delete();
+            if($announcement){
+                return ReturnData(true,'','deleted announcement successfully');
+            }
+            else{
+                return ReturnData(true,'','Failed to delete announcement');
+            }
+        }
     }
 }
