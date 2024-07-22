@@ -161,7 +161,7 @@ class timetable extends Controller
             $date = Carbon::today();
             $dayName = $date->format('l');
             $timetableData = \App\Models\timetable::with('class')->where('TeacherID', $ID)->where('Day',$dayName)
-            ->select('id','ClassID','Subject', 'StartingTime', 'EndingTime','TeacherID')
+            ->select('id', 'Subject', 'ClassID', 'StartingTime', 'EndingTime','TeacherID')
             ->get();
             
             return ReturnData(true,$timetableData,'');
