@@ -658,7 +658,7 @@ class student extends Controller
         $students = students::where('StudentClassID', $ID)->get();
         $studentIds = $students->pluck('StudentUserID')->toArray();
         $date = date('Y-m-d');
-        $attendance = attendance::whereIn('UsersID', $studentIds)->where('Date', $date)->get();
+        $attendance = attendance::whereIn('UsersID', $studentIds)->where('Date', $date)->where('attendance','Present')->select('id','UsersID')->get();
         if($attendance)
         {
             return ReturnData(true,$attendance,'');

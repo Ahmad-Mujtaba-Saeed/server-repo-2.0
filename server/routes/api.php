@@ -60,7 +60,7 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::get('/GetStudentAttendance','GetStudentAttendance');
             Route::get('/ResetPassword','ResetPassword');
             Route::get('/GetStudentWeekAttendance','GetStudentWeekAttendance');
-            Route::get('/GetTodayattendance','GetTodayattendance');
+            Route::post('/GetTodayattendance','GetTodayattendance');
         });
         Route::controller(VideoUploader::class)->group(function () {
             Route::post('/upload-video', 'Store');
