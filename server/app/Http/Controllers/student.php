@@ -639,6 +639,27 @@ class student extends Controller
     }
 
 
+    public function MarkEachAttendance(Request $request){
+        $UsersID = $request->query('ID');
+
+        $date = date('Y-m-d');
+        $attendance = attendance::updateOrCreate([
+            'UsersID' => $UsersID,
+            'attendance' => 'Present',
+        ],
+        [
+            'Date' => $date,
+        ]);
+        if($attendance)
+        {
+            return ReturnData(true,'','Attendance Mark Successfully!');
+        }
+        else{
+            return ReturnData(false,'','Cannot Mark Attendance');
+        }
+    }
+    
+
     public function GetTodayattendance(Request $request){
         $user = $request->user();
         if(($user->role == "Student")){
@@ -665,9 +686,10 @@ class student extends Controller
             return ReturnData(true,$presentIds,'');
         }
         else{
-            return ReturnData(false,'','Failed to get attendance');
+            return ReturnData(true,[],'');
         }
     }
+
 
     public function GetStudentData(Request $request)
     {
