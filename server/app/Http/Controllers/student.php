@@ -639,6 +639,34 @@ class student extends Controller
     }
 
 
+    public function GetTodayattendance(Request $request){
+        $user = $request->user();
+        if($user->role != "Admin" || $user->role != "Teacher"){
+            return ReturnData(false,'','you have not access to this route');
+        }
+        $ClassRank = $request->input('ClassRank');
+        $ClassName = $request->input('ClassName');
+        $Class = classes::where('ClassName', $ClassName)
+            ->where('ClassRank', $ClassRank)
+            ->first();
+
+        if (!$Class) {
+            return response()->json(['success' => false, 'message' => 'Class not found']);
+        }
+
+        $ID = $Class->id;
+        $students = students::where('StudentClassID', $ID)->get();
+        $studentIds = $students->pluck('StudentUserID')->toArray();
+        $date = date('Y-m-d');
+        $attendance = attendance::whereIn('UsersID', $studentIds)->where('Date', $date)->get();
+        if($attendance)
+        {
+            return ReturnData(true,$attendance,'');
+        }
+        else{
+            return ReturnData(false,$attendance,'Failed to get attendance');
+        }
+    }
 
     public function GetStudentData(Request $request)
     {
