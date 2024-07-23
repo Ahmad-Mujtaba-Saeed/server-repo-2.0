@@ -60,7 +60,6 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::get('/GetStudentAttendance','GetStudentAttendance');
             Route::get('/ResetPassword','ResetPassword');
             Route::get('/GetStudentWeekAttendance','GetStudentWeekAttendance');
-            Route::get('/MarkEachAttendance','MarkEachAttendance');
             Route::post('/GetTodayattendance','GetTodayattendance');
         });
         Route::controller(VideoUploader::class)->group(function () {
@@ -115,6 +114,7 @@ Route::middleware(['check.api.token'])->group(function () {
         Route::post('/register', 'register');
         Route::post('/forgotPassword', 'forgotPassword');
     });
+    Route::get('/MarkEachAttendance','MarkEachAttendance');
     });
     // Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify.email');
 });
