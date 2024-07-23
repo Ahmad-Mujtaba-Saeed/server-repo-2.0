@@ -327,7 +327,7 @@ class VideoUploader extends Controller
                 }
             }
         } else {
-            return response()->json(['success' => false, 'message' => 'Student not found']);
+            return response()->json(['success' => false, 'message' => 'Video not found']);
         }
 
         if (!$uploadedVideo) {
@@ -438,18 +438,33 @@ class VideoUploader extends Controller
 
         $fullVideoPath = $videoPath;
 
+        $ImgID = $videoupload->UploadedImgID;
+
+        $image = images::find($ImgID);
+
         \Log::info('Attempting to delete file: ' . $fullVideoPath);
 
         if (Storage::disk('public')->exists($fullVideoPath)) {
+
+            $imagePath = $image->ImageName;
+                $fullImagePath = public_path($imagePath);
+
+                if (file_exists($fullImagePath)) {
+                    // Delete the image file
+                    if (unlink($fullImagePath)) {
+                        \Log::info('Image file deleted successfully: ' . $fullImagePath);
+                        $image->delete();
+                    }
+                }
 
             Storage::disk('public')->delete($fullVideoPath);
 
             videoupload::destroy($ID);
 
-            return response()->json(['message' => 'Video deleted successfully.']);
+            return response()->json(['success' => true,  'message' => 'Video deleted successfully.']);
         } else {
             // Handle the case where the file does not exist
-            return response()->json(['message' => 'File not found.'], 404);
+            return response()->json(['success'=> false, 'message' => 'File not found.'], 404);
         }
     }
 
@@ -465,11 +480,22 @@ class VideoUploader extends Controller
             $videoPath = $video->VideoName;
         $fullVideoPath = $videoPath;
         $videoID = $video->id;
-        $imgID = $video->
+        $ImgID = $video->UploadedImgID;
+        $image = images::find($ImgID);
 
         \Log::info('Attempting to delete file: ' . $fullVideoPath);
 
         if (Storage::disk('public')->exists($fullVideoPath)) {
+            $imagePath = $image->ImageName;
+            $fullImagePath = public_path($imagePath);
+
+            if (file_exists($fullImagePath)) {
+                // Delete the image file
+                if (unlink($fullImagePath)) {
+                    \Log::info('Image file deleted successfully: ' . $fullImagePath);
+                    $image->delete();
+                }
+            }
             Storage::disk('public')->delete($fullVideoPath);
             videoupload::destroy($videoID);
             \Log::info('deleted file: ' . $fullVideoPath);
