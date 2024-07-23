@@ -641,8 +641,8 @@ class student extends Controller
 
     public function GetTodayattendance(Request $request){
         $user = $request->user();
-        if($user->role != "Admin" || $user->role != "Teacher"){
-            return ReturnData(false,'','you have not access to this route');
+        if(($user->role != "Admin") || ($user->role != "Teacher")){
+            return ReturnData(false,'','you do not have access to this route');
         }
         $ClassRank = $request->input('ClassRank');
         $ClassName = $request->input('ClassName');
@@ -659,12 +659,13 @@ class student extends Controller
         $studentIds = $students->pluck('StudentUserID')->toArray();
         $date = date('Y-m-d');
         $attendance = attendance::whereIn('UsersID', $studentIds)->where('Date', $date)->where('attendance','Present')->select('id','UsersID')->get();
-        if($attendance)
+        $presentIds = $attendance->pluck('UsersID')->toArray();
+        if($presentIds)
         {
-            return ReturnData(true,$attendance,'');
+            return ReturnData(true,$presentIds,'');
         }
         else{
-            return ReturnData(false,$attendance,'Failed to get attendance');
+            return ReturnData(false,'','Failed to get attendance');
         }
     }
 
