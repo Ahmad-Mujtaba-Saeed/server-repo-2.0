@@ -10,12 +10,12 @@ class attendance extends Model
     use HasFactory;
 
     protected $fillable = [
-        'UsersID', 
+        'UsersID',
         'attendance',
         'Date'
     ];
 
-    protected $table = 'Attendance';
+    protected $table = 'attendance';
 
     // Define the relationship with the User model
     public function users()

@@ -645,10 +645,10 @@ class student extends Controller
         $date = date('Y-m-d');
         $attendance = attendance::updateOrCreate([
             'UsersID' => $UsersID,
-            'attendance' => 'Present',
+            'Date' => $date,
         ],
         [
-            'Date' => $date,
+            'attendance' => 'Present',
         ]);
         if($attendance)
         {
