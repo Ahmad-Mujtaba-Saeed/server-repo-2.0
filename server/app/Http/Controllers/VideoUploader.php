@@ -452,4 +452,34 @@ class VideoUploader extends Controller
             return response()->json(['message' => 'File not found.'], 404);
         }
     }
+
+    public function destroyPlaylist(Request $request)
+    {
+        $ID = $request->query('ID');
+
+        $PlaylistVideo = PlaylistVideo::with('videos')->find($ID);
+
+        $videos = $PlaylistVideo->videos;
+
+        foreach ($videos as $video){
+            $videoPath = $video->VideoName;
+        $fullVideoPath = $videoPath;
+        $videoID = $video->id;
+        $imgID = $video->
+
+        \Log::info('Attempting to delete file: ' . $fullVideoPath);
+
+        if (Storage::disk('public')->exists($fullVideoPath)) {
+            Storage::disk('public')->delete($fullVideoPath);
+            videoupload::destroy($videoID);
+            \Log::info('deleted file: ' . $fullVideoPath);
+        }
+        }
+        $playlist = PlaylistVideo::destroy($ID);
+        if($playlist){
+            return ReturnData(true,'','Successfully deleted Playlist');
+        }else{
+            return ReturnData(true,'','Failed to delete Playlist');
+        }
+    }
 }

@@ -52,6 +52,9 @@ class AnnouncementController extends Controller
                 return ReturnData(true,'','Not Found for teacher');
             }
         }
+        else{
+            return ReturnData(false,'','No Role assigned');
+        }
     }
     public function showAll(Request $request){
         $announcement = announcement::all();
@@ -64,9 +67,17 @@ class AnnouncementController extends Controller
     }
     public function destroy(Request $request){
         $user = $request->user();
-        if($user->role == 'admin'){
+        if($user->role == 'Admin'){
             $ID = $request->query('ID');
-            $announcement = announcement::find($ID);
+
+            if (!$ID) {
+                return response()->json(['error' => 'ID parameter is required'], 400);
+            }
+            // Find the announcement by ID
+            $announcement = Announcement::find($ID);
+            if (!$announcement) {
+                return response()->json(['error' => 'Announcement not found'], 404);
+            }
             $announcement->delete();
             if($announcement){
                 return ReturnData(true,'','deleted announcement successfully');
