@@ -641,7 +641,7 @@ class student extends Controller
 
     public function GetTodayattendance(Request $request){
         $user = $request->user();
-        if(($user->role != "Admin") || ($user->role != "Teacher")){
+        if(($user->role == "Student")){
             return ReturnData(false,'','you do not have access to this route');
         }
         $ClassRank = $request->input('ClassRank');
