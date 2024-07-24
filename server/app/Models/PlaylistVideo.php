@@ -18,7 +18,7 @@ class PlaylistVideo extends Model
         'Date'
     ];
 
-    protected $table = 'VideoPlaylist';
+    protected $table = 'videoplaylist';
 
     // Define the relationship with the User model
     public function users()

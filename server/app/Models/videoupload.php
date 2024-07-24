@@ -22,7 +22,7 @@ class videoupload extends Model
         'Date'
     ];
 
-    protected $table = 'VideoUpload';
+    protected $table = 'videoupload';
 
     // Define the relationship with the User model
     public function users()
