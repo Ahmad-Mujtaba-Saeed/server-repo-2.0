@@ -108,15 +108,15 @@ Route::middleware(['check.api.token'])->group(function () {
     
 });
 
-    Route::middleware('throttle:15,1')->group(function () {
+Route::middleware('throttle:15,1')->group(function () {
     Route::controller(AuthController::class)->group(function () {
         Route::post('/login', 'login');
         Route::post('/register', 'register');
         Route::post('/forgotPassword', 'forgotPassword');
     });
-    Route::get('/MarkEachAttendance','MarkEachAttendance');
-    });
-    // Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify.email');
+    Route::get('/MarkEachAttendance',[student::class,'MarkEachAttendance']);
+});
+// Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify.email');
 });
 
 
