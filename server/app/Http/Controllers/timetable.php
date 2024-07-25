@@ -50,9 +50,9 @@ class timetable extends Controller
             }
         } else if ($user->role == 'Teacher') {
             $teacher = teachers::with('classes')->where('TeacherUserID', $ID)->first();
-            if ($teacher->classes->id) {
+            if ($teacher->classes[0]->id) {
                 $timetable = \App\Models\timetable::updateOrCreate(    [
-                    'ClassID' => $teacher->classes->id,
+                    'ClassID' => $teacher->classes[0]->id,
                     'StartingTime' => $request->input('startTime'),
                     'EndingTime' => $request->input('endTime'),
                     'Day' => $request->input('day'),
@@ -109,9 +109,9 @@ class timetable extends Controller
             }
         } else if ($user->role == 'Teacher') {
             $teacher = teachers::with('classes')->where('TeacherUserID', $ID)->first();
-            if ($teacher->classes->id) {
+            if ($teacher->classes[0]->id) {
                 $timetable = \App\Models\timetable::updateOrCreate(    [
-                    'ClassID' => $teacher->classes->id,
+                    'ClassID' => $teacher->classes[0]->id,
                     'StartingTime' => $request->input('startTime'),
                     'EndingTime' => $request->input('endTime'),
                     'Day' => $request->input('day'),
